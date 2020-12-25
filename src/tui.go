@@ -2,11 +2,7 @@ package mooze
 
 import (
 	"fmt"
-	"io"
 	"os"
-	"os/exec"
-	// "strconv"
-	// "strings"
 	"syscall"
 
 	"golang.org/x/crypto/ssh/terminal"
@@ -15,6 +11,7 @@ import (
 type input int
 
 const (
+	ENTER     input = 13
 	ESCAPE    input = 27
 	Q         input = 113
 	BACKSPACE input = 127
@@ -29,54 +26,44 @@ func openTty() *os.File {
 }
 
 func UiInit() {
+	var err error
 	in := openTty()
+	r := NewRenderer()
 
-	state, err := terminal.MakeRaw(int(in.Fd()))
-	if err != nil {
-		panic(err)
-	}
+	state := r.ToRawMode(in)
 
-	cmd := exec.Command("clear")
-	cmd.Stdout = os.Stdout
-	cmd.Run()
+	// clears console
+	// every screen context should be printed after this line
+	r.ClearConsoleUnix()
 
-	screen := struct {
-		io.Reader
-		io.Writer
-	}{os.Stdin, os.Stdout}
-	term := terminal.NewTerminal(screen, "")
-	term.SetPrompt(string(term.Escape.Red) + "> " + string(term.Escape.Reset))
-
-	err = syscall.SetNonblock(int(in.Fd()), true)
-	if err != nil {
-		panic(err)
-	}
-
-	line, err := term.ReadLine()
-	if err == io.EOF {
-		return
-	}
-	if line == "c" {
-		cmd := exec.Command("clear")
-		cmd.Stdout = os.Stdout
-		cmd.Run()
-	}
-	fmt.Fprintln(term, line)
+	r.UseNonblockIo(in, true)
 
 	buf := make([]byte, syscall.SizeofInotifyEvent)
 	str := ""
 	for {
-		syscall.Read(int(in.Fd()), buf)
+		r.ReadChar(in, buf)
 		str = str + string(buf)
-		fmt.Fprintf(term, "buf: %3d ", buf[0])
-		fmt.Fprintln(term, "string:", str)
 
 		if buf[0] == byte(Q) || buf[0] == byte(ESCAPE) {
+			r.ClearConsoleUnix()
 			break
+		}
+		if buf[0] == byte(ENTER) {
+			fmt.Print("\x1B[2K")
+			r.CursorX = 0
+			r.CursorY = 1
 		}
 		if buf[0] == byte(BACKSPACE) {
 			// backspace
 		}
+
+		r.WriteChar(buf)
+		// fmt.Print("\x1B[50;1H")
+		// fmt.Print("\x1B[2K")
+		// fmt.Print("Cursor Position: ")
+		// fmt.Printf("%d, %d", r.CursorX, r.CursorY)
+		// fmt.Printf("\x1B[%d;%dH", r.CursorY, r.CursorX)
+		r.TargetStdout(r.TtyRow, 1, "Cursor Coord: %3d, %3d", r.CursorX, r.CursorY)
 	}
 
 	s := "BLUE"
