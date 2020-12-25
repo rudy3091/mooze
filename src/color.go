@@ -2,7 +2,7 @@
  * stdout text & background colorization
  */
 
-package console
+package mooze
 
 import (
 	"fmt"
