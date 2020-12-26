@@ -13,11 +13,20 @@ import (
 type input rune
 
 const (
+	CTRLA     input = 1
+	CTRLJ     input = 10
+	TAB       input = 9
 	ENTER     input = 13
 	ESCAPE    input = 27
-	I         input = 105
-	Q         input = 113
 	BACKSPACE input = 127
+
+	SHIFTA input = 65
+	SHIFTU input = 85
+
+	A input = 97
+	I input = 105
+	Q input = 113
+	U input = 117
 )
 
 type Color struct {

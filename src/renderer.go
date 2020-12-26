@@ -54,9 +54,10 @@ func (r *Renderer) WriteChar(buf []byte) {
 	} else {
 		offset = 2
 	}
+
 	if r.TtyCol <= r.CursorX {
-		r.CursorY += offset
-		r.CursorX = offset
+		r.CursorY += 1
+		r.CursorX += offset
 	} else {
 		r.CursorX += offset
 	}
@@ -104,7 +105,7 @@ func (r *Renderer) MoveCursorTo(x, y int) {
 }
 
 func (r *Renderer) MoveCursorLeft() {
-	if r.CursorX > 2 {
+	if r.CursorX > 1 {
 		r.CursorX -= 1
 		r.MoveCursorTo(r.CursorY, r.CursorX)
 	}
@@ -118,7 +119,7 @@ func (r *Renderer) MoveCursorRight() {
 }
 
 func (r *Renderer) MoveCursorUp() {
-	if r.CursorY > 2 {
+	if r.CursorY > 1 {
 		r.CursorY -= 1
 		r.MoveCursorTo(r.CursorY, r.CursorX)
 	}

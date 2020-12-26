@@ -24,7 +24,7 @@ func GetLength(b []byte) int {
 
 // returns rune data from byte slice
 func BytesToRune(b []byte) rune {
-	r, n := utf8.DecodeRune(b[0:5])
+	r, n := utf8.DecodeRune(b[0:4])
 	if n != 0 {
 		return r
 	} else {
