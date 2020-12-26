@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"syscall"
 
+	"github.com/RudyPark3091/mooze/src/util"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -31,17 +32,33 @@ func NewRenderer() *Renderer {
 	return r
 }
 
+func (r *Renderer) HandleResize() {
+	w, h, err := terminal.GetSize(int(openTty().Fd()))
+	if err != nil {
+		panic(err)
+	}
+
+	r.TtyCol = w
+	r.TtyRow = h
+}
+
 func (r *Renderer) ReadChar(fd *os.File, buf []byte) (int, error) {
 	return syscall.Read(int(fd.Fd()), buf)
 }
 
 func (r *Renderer) WriteChar(buf []byte) {
-	fmt.Fprint(os.Stdout, string(buf[0]))
-	if r.TtyCol <= r.CursorX {
-		r.CursorY += 1
-		r.CursorX = 1
+	fmt.Fprint(os.Stdout, string(util.BytesToRune(buf)))
+	offset := 0
+	if util.IsAscii(buf) {
+		offset = 1
 	} else {
-		r.CursorX += 1
+		offset = 2
+	}
+	if r.TtyCol <= r.CursorX {
+		r.CursorY += offset
+		r.CursorX = offset
+	} else {
+		r.CursorX += offset
 	}
 }
 
@@ -82,9 +99,45 @@ func (r *Renderer) ShowCursor() {
 	fmt.Print("\\e[?25h")
 }
 
-func (r *Renderer) TargetStdout(x, y int, s string, a ...interface{}) {
+func (r *Renderer) MoveCursorTo(x, y int) {
 	fmt.Printf("\x1B[%d;%dH", x, y)
+}
+
+func (r *Renderer) MoveCursorLeft() {
+	if r.CursorX > 2 {
+		r.CursorX -= 1
+		r.MoveCursorTo(r.CursorY, r.CursorX)
+	}
+}
+
+func (r *Renderer) MoveCursorRight() {
+	if r.CursorX < r.TtyCol {
+		r.CursorX += 1
+		r.MoveCursorTo(r.CursorY, r.CursorX)
+	}
+}
+
+func (r *Renderer) MoveCursorUp() {
+	if r.CursorY > 2 {
+		r.CursorY -= 1
+		r.MoveCursorTo(r.CursorY, r.CursorX)
+	}
+}
+
+func (r *Renderer) MoveCursorDown() {
+	if r.CursorY < r.TtyRow {
+		r.CursorY += 1
+		r.MoveCursorTo(r.CursorY, r.CursorX)
+	}
+}
+
+func (r *Renderer) ClearLine() {
 	fmt.Print("\x1B[2K")
+}
+
+func (r *Renderer) RenderTextTo(x, y int, s string, a ...interface{}) {
+	r.MoveCursorTo(x, y)
+	r.ClearLine()
 	fmt.Printf(s, a...)
-	fmt.Printf("\x1B[%d;%dH", r.CursorY, r.CursorX)
+	r.MoveCursorTo(r.CursorY, r.CursorX)
 }
