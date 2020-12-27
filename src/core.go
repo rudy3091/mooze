@@ -57,6 +57,7 @@ func Run() {
 	req := NewRequest("", GET, "", "")
 
 	state := r.ToRawMode(tty)
+	r.UseNonblockIo(tty, true)
 
 	// clears console
 	// every screen context should be printed after this line
@@ -85,8 +86,14 @@ CORE:
 		r.ReadChar(tty, buf)
 		rn := util.BytesToRune(buf)
 
-		r.RenderTextTo(2, 1, "Rune num: %d", rn)
-		r.RenderTextTo(2, 20, "Buffer: %d", buf)
+		r.RenderTextTo(4, 1, "Rune num: %d", rn)
+		r.RenderTextTo(2, 1, "Buffer: %d", buf)
+		r.RenderTextTo(
+			5, 1,
+			NewColorContext("ffaaaa").Colorize(
+				HorizontalLine(r.TtyCol),
+			),
+		)
 
 		if wflag {
 			r.WriteChar(buf)
@@ -118,11 +125,13 @@ CORE:
 			r.ClearConsoleUnix()
 			break CORE
 
+		// send request
 		case rune(CTRLS):
 			res := req.Send()
 			defer res.Body.Close()
 			rbytes := req.Body(res)
 
+			// render response body to console
 			r.RestoreState(tty, state)
 			r.RenderTextTo(4, 1, string(rbytes))
 			h.Write(string(rbytes))

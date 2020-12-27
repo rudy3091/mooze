@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"syscall"
 )
 
@@ -155,4 +156,9 @@ func openTty() *os.File {
 		panic(err)
 	}
 	return tty
+}
+
+func HorizontalLine(l int) string {
+	s := strings.Repeat("\u2500", l)
+	return s
 }
