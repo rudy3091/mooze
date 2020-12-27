@@ -123,8 +123,10 @@ CORE:
 			defer res.Body.Close()
 			rbytes := req.Body(res)
 
-			r.RenderTextTo(10, 1, string(rbytes))
+			r.RestoreState(tty, state)
+			r.RenderTextTo(4, 1, string(rbytes))
 			h.Write(string(rbytes))
+			state = r.ToRawMode(tty)
 
 			wflag = false
 
@@ -175,9 +177,6 @@ CORE:
 				msg = ""
 			}
 
-		case rune(TAB):
-			wflag = false
-
 		// FIXED 2
 		// Ctrl-j == Ctrl-Enter
 		// do nothing
@@ -208,4 +207,8 @@ CORE:
 
 	r.RestoreState(tty, state)
 	r.ShowCursor()
+
+	defer r.RestoreState(tty, state)
+	defer r.UseNonblockIo(tty, false)
+	defer r.RenderTextTo(1, 1, "\x1B[?25h")
 }
