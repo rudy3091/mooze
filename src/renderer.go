@@ -93,11 +93,11 @@ func (r *Renderer) UseNonblockIo(fd *os.File, b bool) {
 }
 
 func (r *Renderer) HideCursor() {
-	fmt.Print("\\e[?25l")
+	fmt.Print("\x1B[?25l")
 }
 
 func (r *Renderer) ShowCursor() {
-	fmt.Print("\\e[?25h")
+	fmt.Print("\x1B[?25h")
 }
 
 func (r *Renderer) MoveCursorTo(x, y int) {
@@ -134,6 +134,13 @@ func (r *Renderer) MoveCursorDown() {
 
 func (r *Renderer) ClearLine() {
 	fmt.Print("\x1B[2K")
+}
+
+func (r *Renderer) Backspace() {
+	r.MoveCursorLeft()
+	// renders " " (space)
+	r.WriteChar([]byte{32, 0, 0, 0})
+	r.MoveCursorLeft()
 }
 
 func (r *Renderer) RenderTextTo(x, y int, s string, a ...interface{}) {

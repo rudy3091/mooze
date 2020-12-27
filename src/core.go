@@ -23,6 +23,7 @@ type mooze struct {
 	tty     *os.File
 	history string
 	header  string
+	body    string
 	url     string
 	method  string
 	context string
@@ -33,21 +34,27 @@ type mooze struct {
 func NewMooze() *mooze {
 	return &mooze{
 		openTty(),
-		"",
-		"",
-		"",
-		"",
-		"",
-		runtime.GOOS,
-		"",
+		"",           // history
+		"",           // header
+		"",           // body
+		"",           // url
+		"GET",        // method
+		"",           // context
+		runtime.GOOS, // os
+		"",           // message
 	}
 }
 
 func Run() {
-	mooze := new(mooze)
+	// applications state
+	mooze := NewMooze()
+	// input mode state
 	f := NewFlags()
+
 	tty := openTty()
 	r := NewRenderer()
+	h := NewHistoryWriter()
+	req := NewRequest("", GET, "", "")
 
 	state := r.ToRawMode(tty)
 
@@ -56,31 +63,72 @@ func Run() {
 	r.ClearConsoleUnix()
 
 	msg := ""
+	// renders character to a console if wflag is true
+	wflag := false
 
 CORE:
 	for {
-		// renders character to a console if wflag is true
-		wflag := true
+		if wflag {
+			r.ShowCursor()
+		} else {
+			r.HideCursor()
+		}
 		buf := make([]byte, syscall.SizeofInotifyEvent)
+		r.RenderTextTo(r.TtyRow-1, 1, "\x1B[4m\x1B[31mu\x1B[0mrl: %s", mooze.url)
+		r.RenderTextTo(r.TtyRow-2, 1, "\x1B[4m\x1B[31mm\x1B[0method: %s", mooze.method)
+		r.RenderTextTo(r.TtyRow-3, 1, "\x1B[4m\x1B[31mh\x1B[0meader: %s", mooze.header)
+		r.RenderTextTo(r.TtyRow-4, 1, "\x1B[4m\x1B[31mb\x1B[0mody: %s", mooze.body)
+		r.RenderTextTo(r.TtyRow-5, 1, "history: %s", mooze.history)
+
+		r.RenderTextTo(r.TtyRow-6, 1, "\x1B[4m\x1B[38;2;255;50;15msend\x1B[0m")
+
 		r.ReadChar(tty, buf)
 		rn := util.BytesToRune(buf)
 
-		r.RenderTextTo(50, 50, string(rn))
-		r.RenderTextTo(2, 1, "Buffer: %d", rn)
+		r.RenderTextTo(2, 1, "Rune num: %d", rn)
+		r.RenderTextTo(2, 20, "Buffer: %d", buf)
 
-		// process user inputs
-		// -------------------------------------------------------------------
-		// FIXME 1: Escape && Arrow key input has same rune value
-		// FIXED 2: typing Ctrl-j twice makes unintentional new line
-		// FIXME 3: if buffer's length == 1 Cursor coordinate not works
+		if wflag {
+			r.WriteChar(buf)
+		}
+
+		/* process user inputs
+		 * -------------------------------------------------------------------
+		 * FIXME 1: Escape && Arrow key input has same rune value
+		 * FIXED 2: typing Ctrl-j makes unintentional new line
+		 * FIXME 3: if buffer's length == 1 Cursor coordinate not works
+		 *
+		 * input mode:
+		 * - u for url
+		 * - m for method
+		 * - h for header
+		 * - b for body
+		 *
+		 * send request
+		 * - Ctrls
+		 *
+		 * quit application
+		 * - Ctrlq
+		 *
+		 */
 
 		switch rn {
 		// exit application
-		case rune(Q):
+		case rune(CTRLQ):
 			r.ClearConsoleUnix()
 			break CORE
 
-		// process input message
+		case rune(CTRLS):
+			res := req.Send()
+			defer res.Body.Close()
+			rbytes := req.Body(res)
+
+			r.RenderTextTo(10, 1, string(rbytes))
+			h.Write(string(rbytes))
+
+			wflag = false
+
+		// process user input
 		case rune(ENTER):
 			r.ClearLine()
 			r.CursorX = 1
@@ -93,6 +141,8 @@ CORE:
 				3, 1,
 				NewColorContext("ffff55").Colorize(mooze.message),
 			)
+
+			// set request infos
 			switch {
 			case f.url:
 				mooze.url = mooze.message
@@ -101,6 +151,7 @@ CORE:
 					NewColorContext("ffff55").Colorize("url: "+mooze.url),
 				)
 				r.RenderTextTo(3, 1, "\x1B[2K")
+				req.url = mooze.url
 				f.url = false
 
 			case f.method:
@@ -115,32 +166,35 @@ CORE:
 			wflag = false
 
 		case rune(BACKSPACE):
+			// \x1B[?25h rendered by ShowCursor not shown in console
 			r.MoveCursorLeft()
-			r.WriteChar([]byte{32, 0, 0, 0})
-			r.MoveCursorLeft()
+			r.Backspace()
 			if len(msg) > 1 {
 				msg = msg[0 : len(msg)-1]
 			} else {
 				msg = ""
 			}
-			wflag = false
 
 		case rune(TAB):
 			wflag = false
 
 		// FIXED 2
+		// Ctrl-j == Ctrl-Enter
+		// do nothing
 		case rune(CTRLJ):
 			wflag = false
 
 		// get Request Url from user
 		case rune(U):
 			f.url = true
-			r.RenderTextTo(3, 1, NewColorContext("88ff88").Colorize("-- URL --"))
-			wflag = false
+			r.RenderTextTo(3, 1, NewColorContext("ff8888").Colorize("-- URL --"))
+			wflag = true
 
 		// appending input character into message
 		default:
-			msg = msg + string(rn)
+			if wflag {
+				msg = msg + string(rn)
+			}
 		}
 
 		// output
@@ -150,11 +204,8 @@ CORE:
 			NewColorContext("ff0000", "ffffff").Colorize("Cursor Coord: %3d, %3d"),
 			r.CursorX, r.CursorY,
 		)
-		if !wflag {
-			continue
-		}
-		r.WriteChar(buf)
 	}
 
 	r.RestoreState(tty, state)
+	r.ShowCursor()
 }

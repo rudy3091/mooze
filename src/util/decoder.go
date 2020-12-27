@@ -12,7 +12,7 @@ func IsAscii(b []byte) bool {
 	return true
 }
 
-// returns number of non-zero values in byte slice
+// returns first non-zero index in byte slice
 func GetLength(b []byte) int {
 	for i, v := range b {
 		if v == 0 {

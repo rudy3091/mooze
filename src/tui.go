@@ -15,7 +15,12 @@ type input rune
 const (
 	CTRLA     input = 1
 	CTRLJ     input = 10
-	TAB       input = 9
+	CTRLQ     input = 17
+	CTRLS     input = 19
+	CTRLENTER input = 10
+
+	TAB input = 9
+	// CTRL M == ENTER on UNIX
 	ENTER     input = 13
 	ESCAPE    input = 27
 	BACKSPACE input = 127
