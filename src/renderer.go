@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"syscall"
 
 	"github.com/RudyPark3091/mooze/src/util"
@@ -148,4 +149,44 @@ func (r *Renderer) RenderTextTo(x, y int, s string, a ...interface{}) {
 	r.ClearLine()
 	fmt.Printf(s, a...)
 	r.MoveCursorTo(r.CursorY, r.CursorX)
+}
+
+func (r *Renderer) RenderTextNoClear(x, y int, s string, a ...interface{}) {
+	r.MoveCursorTo(x, y)
+	fmt.Printf(s, a...)
+	r.MoveCursorTo(r.CursorY, r.CursorX)
+}
+
+func (r *Renderer) HorizontalLine(x, y int, l int) {
+	// r.RenderTextNoClear(x, y, strings.Repeat("\u2500", l))
+	r.RenderTextNoClear(x, y, strings.Repeat(
+		NewColorContext("ff9999").Colorize("\u2501"), l))
+}
+
+func (r *Renderer) VerticalLine(x, y int, l int) {
+	// for i := 0; i < l; i++ {
+	// 	r.RenderTextNoClear(x+i, y, "\u2502")
+	// }
+
+	for i := 0; i < l; i++ {
+		r.RenderTextNoClear(x+i, y,
+			NewColorContext("ff9999").Colorize("\u2503"))
+	}
+}
+
+func (r *Renderer) RenderWindow(w Window) {
+	r.RenderTextNoClear(w.x, w.y, w.charTopLeft)
+	r.RenderTextNoClear(w.x+w.sizeX, w.y, w.charBottomLeft)
+	r.RenderTextNoClear(w.x, w.y+w.sizeY, w.charTopRight)
+	r.RenderTextNoClear(w.x+w.sizeX, w.y+w.sizeY, w.charBottomRight)
+
+	for i := 0; i < w.sizeX-1; i++ {
+		r.RenderTextNoClear(w.x, w.y+i+1, w.charHorizontal)
+		r.RenderTextNoClear(w.x+w.sizeY, w.y+i+1, w.charHorizontal)
+	}
+
+	for i := 0; i < w.sizeY-1; i++ {
+		r.RenderTextNoClear(w.x+i+1, w.y, w.charVertical)
+		r.RenderTextNoClear(w.x+i+1, w.y+w.sizeX, w.charVertical)
+	}
 }

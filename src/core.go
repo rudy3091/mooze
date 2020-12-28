@@ -57,7 +57,9 @@ func Run() {
 	req := NewRequest("", GET, "", "")
 
 	state := r.ToRawMode(tty)
+	defer r.RestoreState(tty, state)
 	r.UseNonblockIo(tty, true)
+	defer r.UseNonblockIo(tty, false)
 
 	// clears console
 	// every screen context should be printed after this line
@@ -67,12 +69,17 @@ func Run() {
 	// renders character to a console if wflag is true
 	wflag := false
 
+	// renderwindow test
+	w := Window{10, 10, 10, 10, "\u2500", "\u2502", "\u250c", "\u2510", "\u2514", "\u2518"}
+	r.RenderWindow(w)
+
 CORE:
 	for {
 		if wflag {
 			r.ShowCursor()
 		} else {
 			r.HideCursor()
+			defer r.ShowCursor()
 		}
 		buf := make([]byte, syscall.SizeofInotifyEvent)
 		r.RenderTextTo(r.TtyRow-1, 1, "\x1B[4m\x1B[31mu\x1B[0mrl: %s", mooze.url)
@@ -86,14 +93,16 @@ CORE:
 		r.ReadChar(tty, buf)
 		rn := util.BytesToRune(buf)
 
-		r.RenderTextTo(4, 1, "Rune num: %d", rn)
-		r.RenderTextTo(2, 1, "Buffer: %d", buf)
-		r.RenderTextTo(
-			5, 1,
-			NewColorContext("ffaaaa").Colorize(
-				HorizontalLine(r.TtyCol),
-			),
-		)
+		r.RenderTextTo(2, 1, "Rune num: %d", rn)
+		r.RenderTextNoClear(2, 20, "Buffer: %d", buf)
+
+		// drawing window
+		// horizontal line
+		r.HorizontalLine(5, 1, r.TtyCol)
+		r.HorizontalLine(r.TtyRow-8, 1, r.TtyCol)
+		// vertical line
+		r.VerticalLine(5, 1, r.TtyRow-13)
+		r.VerticalLine(5, r.TtyCol, r.TtyRow-13)
 
 		if wflag {
 			r.WriteChar(buf)
@@ -133,7 +142,7 @@ CORE:
 
 			// render response body to console
 			r.RestoreState(tty, state)
-			r.RenderTextTo(4, 1, string(rbytes))
+			r.RenderTextTo(6, 3, string(rbytes))
 			h.Write(string(rbytes))
 			state = r.ToRawMode(tty)
 
@@ -215,9 +224,4 @@ CORE:
 	}
 
 	r.RestoreState(tty, state)
-	r.ShowCursor()
-
-	defer r.RestoreState(tty, state)
-	defer r.UseNonblockIo(tty, false)
-	defer r.RenderTextTo(1, 1, "\x1B[?25h")
 }

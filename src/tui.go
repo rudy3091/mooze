@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 	"syscall"
 )
 
@@ -41,33 +40,49 @@ type Color struct {
 	B int
 }
 
-type effect int
+type textEffect int
 
 const (
-	NORMAL     effect = 0
-	BOLD       effect = 1
-	DIM        effect = 2
-	UNDERLINED effect = 4
-	BLINK      effect = 5
+	NORMAL     textEffect = 0
+	BOLD       textEffect = 1
+	DIM        textEffect = 2
+	UNDERLINED textEffect = 4
+	BLINK      textEffect = 5
 )
 
 // for changing text color
 // uses RGB color
 type Fg struct {
 	color  Color
-	effect effect
+	effect textEffect
 }
 
 // for changing text background color
 type Bg struct {
 	color  Color
-	effect effect
+	effect textEffect
 }
 
 // for changing text color & background color
 type ColorContext struct {
 	fg Fg
 	bg Bg
+}
+
+type FrontColorEnum struct {
+	red     ColorContext
+	blue    ColorContext
+	green   ColorContext
+	yellow  ColorContext
+	cyan    ColorContext
+	orange  ColorContext
+	magenta ColorContext
+	gray    ColorContext
+	black   ColorContext
+	emerald ColorContext
+	purple  ColorContext
+	tomato  ColorContext
+	coral   ColorContext
 }
 
 // ffffff to Color{255, 255, 255}
@@ -149,6 +164,19 @@ func (c ColorContext) Colorize(s string) string {
 	return ret
 }
 
+type Window struct {
+	x               int
+	y               int
+	sizeX           int
+	sizeY           int
+	charHorizontal  string
+	charVertical    string
+	charTopLeft     string
+	charTopRight    string
+	charBottomLeft  string
+	charBottomRight string
+}
+
 // returns file descriptor of /dev/tty
 func openTty() *os.File {
 	tty, err := os.OpenFile("/dev/tty", syscall.O_RDONLY, 0)
@@ -156,9 +184,4 @@ func openTty() *os.File {
 		panic(err)
 	}
 	return tty
-}
-
-func HorizontalLine(l int) string {
-	s := strings.Repeat("\u2500", l)
-	return s
 }
