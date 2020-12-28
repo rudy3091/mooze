@@ -1,3 +1,6 @@
+// TODO: stop displaying rune & buffer code - for debug
+// TODO: terminal width processing - what if input exceeds TtyCol?
+
 package mooze
 
 import (
@@ -25,23 +28,21 @@ type mooze struct {
 	header  string
 	body    string
 	url     string
-	method  string
-	context string
+	method  methodtype
 	os      string
 	message string
 }
 
 func NewMooze() *mooze {
 	return &mooze{
-		openTty(),
-		"",           // history
-		"",           // header
-		"",           // body
-		"",           // url
-		"GET",        // method
-		"",           // context
-		runtime.GOOS, // os
-		"",           // message
+		tty:     openTty(),
+		history: "",           // history
+		header:  "",           // header
+		body:    "",           // body
+		url:     "",           // url
+		method:  GET,          // method
+		os:      runtime.GOOS, // os
+		message: "",           // message
 	}
 }
 
@@ -73,7 +74,17 @@ func Run() {
 	// status window
 	sx := 7
 	sy := r.TtyCol() - 1
-	status := NewWindow(r.TtyRow()-sx-1, 1, sx, sy)
+	status := NewWindow(r.TtyRow()-sx-1, 1, sx, sy, "ffaaaa")
+
+	// drawing status window
+	r.RenderWindow(status)
+	r.RenderTextNoClear(r.TtyRow()-2, 3, "\x1B[4m\x1B[31mu\x1B[0mrl: %s", FColors.yellow.Colorize(mooze.url))
+	r.RenderTextNoClear(r.TtyRow()-3, 3, "\x1B[4m\x1B[31mm\x1B[0method: %s",
+		FColors.yellow.Colorize(methodTypeToString(GET)))
+	r.RenderTextNoClear(r.TtyRow()-4, 3, "\x1B[4m\x1B[31mh\x1B[0meader: %s", mooze.header)
+	r.RenderTextNoClear(r.TtyRow()-5, 3, "\x1B[4m\x1B[31mb\x1B[0mody: %s", mooze.body)
+	r.RenderTextNoClear(r.TtyRow()-6, 3, "history: %s", mooze.history)
+	r.RenderTextNoClear(r.TtyRow()-7, 3, FColors.yellow.Colorize("send: ctrl + s"))
 
 CORE:
 	for {
@@ -85,20 +96,10 @@ CORE:
 		}
 		buf := make([]byte, syscall.SizeofInotifyEvent)
 
-		// drawing status window
-		r.RenderWindow(status)
-		r.RenderTextNoClear(r.TtyRow()-2, 3, "\x1B[4m\x1B[31mu\x1B[0mrl: %s", FColors.yellow.Colorize(mooze.url))
-		r.RenderTextNoClear(r.TtyRow()-3, 3, "\x1B[4m\x1B[31mm\x1B[0method: %s", mooze.method)
-		r.RenderTextNoClear(r.TtyRow()-4, 3, "\x1B[4m\x1B[31mh\x1B[0meader: %s", mooze.header)
-		r.RenderTextNoClear(r.TtyRow()-5, 3, "\x1B[4m\x1B[31mb\x1B[0mody: %s", mooze.body)
-		r.RenderTextNoClear(r.TtyRow()-6, 3, "history: %s", mooze.history)
-		r.RenderTextNoClear(r.TtyRow()-7, 3, "\x1B[4m\x1B[38;2;255;50;15msend\x1B[0m")
-
 		r.ReadChar(tty, buf)
 		rn := util.BytesToRune(buf)
 
-		r.RenderTextTo(2, 1, "Rune num: %d", rn)
-		r.RenderTextNoClear(2, 20, "Buffer: %d", buf)
+		r.RenderTextTo(2, 1, "Rune num: %-10d Buffer: %d", rn, buf)
 
 		if wflag {
 			r.WriteChar(buf)
@@ -109,6 +110,7 @@ CORE:
 		 * FIXME 1: Escape && Arrow key input has same rune value
 		 * FIXED 2: typing Ctrl-j makes unintentional new line
 		 * FIXME 3: if buffer's length == 1 Cursor coordinate not works
+		 * FIXME 4: no need to re-render all screen in every input
 		 *
 		 * input mode:
 		 * - u for url
@@ -117,10 +119,10 @@ CORE:
 		 * - b for body
 		 *
 		 * send request
-		 * - Ctrls
+		 * - Ctrl + s
 		 *
 		 * quit application
-		 * - Ctrlq
+		 * - Ctrl + q
 		 *
 		 */
 
@@ -130,6 +132,25 @@ CORE:
 			r.ClearConsoleUnix()
 			break CORE
 
+		case rune(ESCAPE):
+			msg = ""
+			switch {
+			case f.url:
+				f.url = false
+			case f.method:
+				f.method = false
+			case f.header:
+				f.header = false
+			case f.history:
+				f.history = false
+			}
+			statusBar.Now = statusBar.Normal
+			r.RenderTextTo(3, 1, "\x1B[2K")
+			r.ClearLine()
+			r.CursorX = 1
+			r.CursorY = 1
+			wflag = false
+
 		// send request
 		case rune(CTRLS):
 			res := req.Send()
@@ -138,7 +159,7 @@ CORE:
 
 			// render response body to console
 			r.RestoreState(tty, state)
-			r.RenderTextTo(6, 3, string(rbytes))
+			r.RenderTextTo(6, 1, string(rbytes))
 			h.Write(string(rbytes))
 			state = r.ToRawMode(tty)
 
@@ -146,6 +167,7 @@ CORE:
 
 		// process user input
 		case rune(ENTER):
+			statusBar.Now = statusBar.Normal
 			r.ClearLine()
 			r.CursorX = 1
 			r.CursorY = 1
@@ -153,25 +175,20 @@ CORE:
 			mooze.message = msg
 			msg = ""
 
-			r.RenderTextTo(
-				3, 1,
-				NewColorContext("ffff55").Colorize(mooze.message),
-			)
-
 			// set request infos
 			switch {
 			case f.url:
 				mooze.url = mooze.message
-				r.RenderTextTo(
-					r.TtyRow()-1, 1,
-					NewColorContext("ffff55").Colorize("url: "+mooze.url),
+				r.RenderTextNoClear(
+					r.TtyRow()-2, 8,
+					NewColorContext("ffff55").Colorize(mooze.url),
 				)
 				r.RenderTextTo(3, 1, "\x1B[2K")
 				req.url = mooze.url
 				f.url = false
 
 			case f.method:
-				mooze.method = mooze.message
+				mooze.method = 0
 
 			case f.header:
 				mooze.header = mooze.message
@@ -201,6 +218,7 @@ CORE:
 		case rune(U):
 			f.url = true
 			r.RenderTextTo(3, 1, NewColorContext("ff8888").Colorize("-- URL --"))
+			statusBar.Now = statusBar.Url
 			wflag = true
 
 		// appending input character into message
@@ -212,10 +230,12 @@ CORE:
 
 		// output
 		// ----------------------------------------------------------------------
+		// StatusBar: (TtyRow(), 1)
 		r.RenderTextTo(
 			r.TtyRow(), 1,
-			NewColorContext("ff0000", "ffffff").Colorize("Cursor Coord: %3d, %3d"),
-			r.CursorX, r.CursorY,
+			NewColorContext("444444", statusBar.Now.Hex).Colorize("%s")+"     "+
+				NewColorContext("ff0000", "ffffff").Colorize("Cursor Coord: %3d, %3d"),
+			statusBar.Now.Name, r.CursorX, r.CursorY,
 		)
 	}
 

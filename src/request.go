@@ -11,9 +11,19 @@ const (
 	GET methodtype = iota
 	POST
 	PUT
-	DELETE
 	PATCH
+	DELETE
 )
+
+func methodTypeToString(m methodtype) string {
+	return []string{
+		"GET",
+		"POST",
+		"PUT",
+		"PATCH",
+		"DELETE",
+	}[m]
+}
 
 type Request struct {
 	url    string

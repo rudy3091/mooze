@@ -5,9 +5,7 @@ package mooze
 
 import (
 	"fmt"
-	"os"
 	"strconv"
-	"syscall"
 )
 
 type input rune
@@ -213,15 +211,65 @@ type Window struct {
 	charBottomRight string
 }
 
-func NewWindow(x, y, sizeX, sizeY int) Window {
-	return Window{x, y, sizeX, sizeY, "\u2500", "\u2502", "\u250c", "\u2510", "\u2514", "\u2518"}
+func color(hex, s string) string {
+	return NewColorContext(hex).Colorize(s)
 }
 
-// returns file descriptor of /dev/tty
-func openTty() *os.File {
-	tty, err := os.OpenFile("/dev/tty", syscall.O_RDONLY, 0)
-	if err != nil {
-		panic(err)
+func NewWindow(x, y, sizeX, sizeY int, hex string) *Window {
+	return &Window{
+		x, y, sizeX, sizeY,
+		color(hex, "\u2500"),
+		color(hex, "\u2502"),
+		color(hex, "\u250c"),
+		color(hex, "\u2510"),
+		color(hex, "\u2514"),
+		color(hex, "\u2518"),
 	}
-	return tty
 }
+
+func (w *Window) SetCharHorizontal(c string) {
+	w.charHorizontal = c
+}
+
+func (w *Window) SetCharVertical(c string) {
+	w.charVertical = c
+}
+
+func (w *Window) SetCharTopLeft(c string) {
+	w.charTopLeft = c
+}
+
+func (w *Window) SetCharTopRight(c string) {
+	w.charTopRight = c
+}
+
+func (w *Window) SetCharBottomLeft(c string) {
+	w.charBottomLeft = c
+}
+
+func (w *Window) SetCharBottomRight(c string) {
+	w.charBottomRight = c
+}
+
+type Mode struct {
+	Hex  string
+	Name string
+}
+
+type StatusBar struct {
+	Now    *Mode
+	Normal *Mode
+	Url    *Mode
+}
+
+func NewStatusBar() *StatusBar {
+	normal := &Mode{"88ff88", "   NORMAL   "}
+	url := &Mode{"ffff88", "  URL input  "}
+	return &StatusBar{
+		Now:    normal,
+		Normal: normal,
+		Url:    url,
+	}
+}
+
+var statusBar = NewStatusBar()

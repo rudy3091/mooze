@@ -34,6 +34,15 @@ func NewRenderer() *Renderer {
 	return r
 }
 
+// returns file descriptor of /dev/tty
+func openTty() *os.File {
+	tty, err := os.OpenFile("/dev/tty", syscall.O_RDONLY, 0)
+	if err != nil {
+		panic(err)
+	}
+	return tty
+}
+
 func (r *Renderer) TtyCol() int {
 	w, _, err := terminal.GetSize(int(openTty().Fd()))
 	if err != nil {
@@ -50,8 +59,12 @@ func (r *Renderer) TtyRow() int {
 	return h
 }
 
-func (r *Renderer) ReadChar(fd *os.File, buf []byte) (int, error) {
-	return syscall.Read(int(fd.Fd()), buf)
+func (r *Renderer) ReadChar(fd *os.File, buf []byte) int {
+	n, err := syscall.Read(int(fd.Fd()), buf)
+	if err != nil {
+		panic(err)
+	}
+	return n
 }
 
 func (r *Renderer) WriteChar(buf []byte) {
@@ -165,7 +178,7 @@ func (r *Renderer) RenderTextNoClear(x, y int, s string, a ...interface{}) {
 	r.MoveCursorTo(r.CursorX, r.CursorY)
 }
 
-func (r *Renderer) RenderWindow(w Window) {
+func (r *Renderer) RenderWindow(w *Window) {
 	r.RenderTextNoClear(w.x, w.y, w.charTopLeft)
 	r.RenderTextNoClear(w.x+w.sizeX, w.y, w.charBottomLeft)
 	r.RenderTextNoClear(w.x, w.y+w.sizeY, w.charTopRight)
