@@ -199,56 +199,54 @@ func (c ColorContext) Colorize(s string) string {
 }
 
 type Window struct {
-	x               int
-	y               int
-	sizeX           int
-	sizeY           int
-	charHorizontal  string
-	charVertical    string
-	charTopLeft     string
-	charTopRight    string
-	charBottomLeft  string
-	charBottomRight string
-}
-
-func color(hex, s string) string {
-	return NewColorContext(hex).Colorize(s)
+	X               int
+	Y               int
+	SizeX           int
+	SizeY           int
+	CharHorizontal  string
+	CharVertical    string
+	CharTopLeft     string
+	CharTopRight    string
+	CharBottomLeft  string
+	CharBottomRight string
+	Focused         bool
+	Color           *ColorContext
 }
 
 func NewWindow(x, y, sizeX, sizeY int, hex string) *Window {
 	return &Window{
 		x, y, sizeX, sizeY,
-		color(hex, "\u2500"),
-		color(hex, "\u2502"),
-		color(hex, "\u250c"),
-		color(hex, "\u2510"),
-		color(hex, "\u2514"),
-		color(hex, "\u2518"),
+		"\u2500",
+		"\u2502",
+		"\u250c",
+		"\u2510",
+		"\u2514",
+		"\u2518",
+		false,
+		NewColorContext(hex),
 	}
 }
 
-func (w *Window) SetCharHorizontal(c string) {
-	w.charHorizontal = c
+func (w *Window) Focus() {
+	w.Focused = true
+	w.CharHorizontal = "\u2501"
+	w.CharVertical = "\u2503"
+	w.CharTopLeft = "\u250f"
+	w.CharTopRight = "\u2513"
+	w.CharBottomLeft = "\u2517"
+	w.CharBottomRight = "\u251b"
+	NewRenderer().RenderWindow(w)
 }
 
-func (w *Window) SetCharVertical(c string) {
-	w.charVertical = c
-}
-
-func (w *Window) SetCharTopLeft(c string) {
-	w.charTopLeft = c
-}
-
-func (w *Window) SetCharTopRight(c string) {
-	w.charTopRight = c
-}
-
-func (w *Window) SetCharBottomLeft(c string) {
-	w.charBottomLeft = c
-}
-
-func (w *Window) SetCharBottomRight(c string) {
-	w.charBottomRight = c
+func (w *Window) Unfocus() {
+	w.Focused = false
+	w.CharHorizontal = "\u2500"
+	w.CharVertical = "\u2502"
+	w.CharTopLeft = "\u250c"
+	w.CharTopRight = "\u2510"
+	w.CharBottomLeft = "\u2514"
+	w.CharBottomRight = "\u2518"
+	NewRenderer().RenderWindow(w)
 }
 
 type Mode struct {
@@ -263,8 +261,8 @@ type StatusBar struct {
 }
 
 func NewStatusBar() *StatusBar {
-	normal := &Mode{"88ff88", "   NORMAL   "}
-	url := &Mode{"ffff88", "  URL input  "}
+	normal := &Mode{"88ee88", "   NORMAL   "}
+	url := &Mode{"eeee88", "  URL input  "}
 	return &StatusBar{
 		Now:    normal,
 		Normal: normal,
@@ -272,4 +270,4 @@ func NewStatusBar() *StatusBar {
 	}
 }
 
-var statusBar = NewStatusBar()
+var MoozeStatusBar = NewStatusBar()

@@ -1,11 +1,14 @@
 // TODO: stop displaying rune & buffer code - for debug
 // TODO: terminal width processing - what if input exceeds TtyCol?
+//       -> Maybe I should change input methology terminal.Newterminal()?
+// TODO: reactive terminal - change the layout if terminal size varies
 
 package mooze
 
 import (
 	"os"
 	"runtime"
+	"strings"
 	"syscall"
 
 	"github.com/RudyPark3091/mooze/src/util"
@@ -74,10 +77,10 @@ func Run() {
 	// status window
 	sx := 7
 	sy := r.TtyCol() - 1
-	status := NewWindow(r.TtyRow()-sx-1, 1, sx, sy, "ffaaaa")
+	statusWindow := NewWindow(r.TtyRow()-sx-1, 1, sx, sy, "ffaaaa")
 
 	// drawing status window
-	r.RenderWindow(status)
+	r.RenderWindow(statusWindow)
 	r.RenderTextNoClear(r.TtyRow()-2, 3, "\x1B[4m\x1B[31mu\x1B[0mrl: %s", FColors.yellow.Colorize(mooze.url))
 	r.RenderTextNoClear(r.TtyRow()-3, 3, "\x1B[4m\x1B[31mm\x1B[0method: %s",
 		FColors.yellow.Colorize(methodTypeToString(GET)))
@@ -86,8 +89,27 @@ func Run() {
 	r.RenderTextNoClear(r.TtyRow()-6, 3, "history: %s", mooze.history)
 	r.RenderTextNoClear(r.TtyRow()-7, 3, FColors.yellow.Colorize("send: ctrl + s"))
 
+	sBarBg := NewColorContext("bfbfbf", "555555")
+
 CORE:
 	for {
+		// CORE LOGIC
+		// ----------------------------------------------------------------------
+		// Render StatusBar at (TtyRow(), 1)
+		nowBg := NewColorContext(MoozeStatusBar.Now.Hex, "555555")
+		r.RenderTextTo(r.TtyRow(), 1, sBarBg.Colorize(strings.Repeat(" ", r.TtyCol())))
+		r.RenderTextNoClear(
+			r.TtyRow(), 1,
+			NewColorContext("555555", MoozeStatusBar.Now.Hex).Colorize("%s")+nowBg.Colorize("\ue0b0"),
+			MoozeStatusBar.Now.Name,
+		)
+		r.RenderTextNoClear(
+			r.TtyRow(), r.TtyCol()-6,
+			nowBg.Colorize("\ue0b2")+
+				NewColorContext("555555", MoozeStatusBar.Now.Hex).Colorize("%-2d, %-2d"),
+			r.CursorX, r.CursorY,
+		)
+
 		if wflag {
 			r.ShowCursor()
 		} else {
@@ -109,8 +131,9 @@ CORE:
 		 * -------------------------------------------------------------------
 		 * FIXME 1: Escape && Arrow key input has same rune value
 		 * FIXED 2: typing Ctrl-j makes unintentional new line
-		 * FIXME 3: if buffer's length == 1 Cursor coordinate not works
+		 * FIXED 3: if buffer's length == 1 Cursor coordinate not works
 		 * FIXME 4: no need to re-render all screen in every input
+		 * FIXME 5: can't type 'u' in url input mode
 		 *
 		 * input mode:
 		 * - u for url
@@ -145,7 +168,6 @@ CORE:
 				f.history = false
 			}
 			MoozeStatusBar.Now = MoozeStatusBar.Normal
-			r.RenderTextTo(3, 1, "\x1B[2K")
 			r.ClearLine()
 			r.CursorX = 1
 			r.CursorY = 1
@@ -183,7 +205,6 @@ CORE:
 					r.TtyRow()-2, 8,
 					NewColorContext("ffff55").Colorize(mooze.url),
 				)
-				r.RenderTextTo(3, 1, "\x1B[2K")
 				req.url = mooze.url
 				f.url = false
 
@@ -217,7 +238,6 @@ CORE:
 		// get Request Url from user
 		case rune(U):
 			f.url = true
-			r.RenderTextTo(3, 1, NewColorContext("ff8888").Colorize("-- URL --"))
 			MoozeStatusBar.Now = MoozeStatusBar.Url
 			wflag = true
 
@@ -227,16 +247,6 @@ CORE:
 				msg = msg + string(rn)
 			}
 		}
-
-		// output
-		// ----------------------------------------------------------------------
-		// StatusBar: (TtyRow(), 1)
-		r.RenderTextTo(
-			r.TtyRow(), 1,
-			NewColorContext("444444", MoozeStatusBar.Now.Hex).Colorize("%s")+"     "+
-				NewColorContext("ff0000", "ffffff").Colorize("Cursor Coord: %3d, %3d"),
-			MoozeStatusBar.Now.Name, r.CursorX, r.CursorY,
-		)
 	}
 
 	r.RestoreState(tty, state)
