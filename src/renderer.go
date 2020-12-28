@@ -191,13 +191,13 @@ func (r *Renderer) RenderWindow(w Window) {
 	r.RenderTextNoClear(w.x, w.y+w.sizeY, w.charTopRight)
 	r.RenderTextNoClear(w.x+w.sizeX, w.y+w.sizeY, w.charBottomRight)
 
-	for i := 0; i < w.sizeX-1; i++ {
+	for i := 0; i < w.sizeY-1; i++ {
 		r.RenderTextNoClear(w.x, w.y+i+1, w.charHorizontal)
-		r.RenderTextNoClear(w.x+w.sizeY, w.y+i+1, w.charHorizontal)
+		r.RenderTextNoClear(w.x+w.sizeX, w.y+i+1, w.charHorizontal)
 	}
 
-	for i := 0; i < w.sizeY-1; i++ {
+	for i := 0; i < w.sizeX-1; i++ {
 		r.RenderTextNoClear(w.x+i+1, w.y, w.charVertical)
-		r.RenderTextNoClear(w.x+i+1, w.y+w.sizeX, w.charVertical)
+		r.RenderTextNoClear(w.x+i+1, w.y+w.sizeY, w.charVertical)
 	}
 }

@@ -70,7 +70,7 @@ func Run() {
 	wflag := false
 
 	// renderwindow test
-	w := NewWindow(6, 1, 15, 20)
+	w := NewWindow(6, 1, r.TtyRow-15, r.TtyCol-1)
 
 CORE:
 	for {
