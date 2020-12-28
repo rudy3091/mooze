@@ -56,6 +56,7 @@ func Run() {
 	h := NewHistoryWriter()
 	req := NewRequest("", GET, "", "")
 
+	defer r.ClearConsoleUnix()
 	state := r.ToRawMode(tty)
 	defer r.RestoreState(tty, state)
 	r.UseNonblockIo(tty, true)
@@ -69,8 +70,10 @@ func Run() {
 	// renders character to a console if wflag is true
 	wflag := false
 
-	// renderwindow test
-	w := NewWindow(6, 1, r.TtyRow-15, r.TtyCol-1)
+	// status window
+	sx := 7
+	sy := r.TtyCol() - 1
+	status := NewWindow(r.TtyRow()-sx-1, 1, sx, sy)
 
 CORE:
 	for {
@@ -81,23 +84,21 @@ CORE:
 			defer r.ShowCursor()
 		}
 		buf := make([]byte, syscall.SizeofInotifyEvent)
-		r.RenderTextTo(r.TtyRow-1, 1, "\x1B[4m\x1B[31mu\x1B[0mrl: %s", mooze.url)
-		r.RenderTextTo(r.TtyRow-2, 1, "\x1B[4m\x1B[31mm\x1B[0method: %s", mooze.method)
-		r.RenderTextTo(r.TtyRow-3, 1, "\x1B[4m\x1B[31mh\x1B[0meader: %s", mooze.header)
-		r.RenderTextTo(r.TtyRow-4, 1, "\x1B[4m\x1B[31mb\x1B[0mody: %s", mooze.body)
-		r.RenderTextTo(r.TtyRow-5, 1, "history: %s", mooze.history)
 
-		r.RenderTextTo(r.TtyRow-6, 1, "\x1B[4m\x1B[38;2;255;50;15msend\x1B[0m")
+		// drawing status window
+		r.RenderWindow(status)
+		r.RenderTextNoClear(r.TtyRow()-2, 3, "\x1B[4m\x1B[31mu\x1B[0mrl: %s", FColors.yellow.Colorize(mooze.url))
+		r.RenderTextNoClear(r.TtyRow()-3, 3, "\x1B[4m\x1B[31mm\x1B[0method: %s", mooze.method)
+		r.RenderTextNoClear(r.TtyRow()-4, 3, "\x1B[4m\x1B[31mh\x1B[0meader: %s", mooze.header)
+		r.RenderTextNoClear(r.TtyRow()-5, 3, "\x1B[4m\x1B[31mb\x1B[0mody: %s", mooze.body)
+		r.RenderTextNoClear(r.TtyRow()-6, 3, "history: %s", mooze.history)
+		r.RenderTextNoClear(r.TtyRow()-7, 3, "\x1B[4m\x1B[38;2;255;50;15msend\x1B[0m")
 
 		r.ReadChar(tty, buf)
 		rn := util.BytesToRune(buf)
 
 		r.RenderTextTo(2, 1, "Rune num: %d", rn)
 		r.RenderTextNoClear(2, 20, "Buffer: %d", buf)
-
-		// drawing window
-		// horizontal line
-		r.RenderWindow(w)
 
 		if wflag {
 			r.WriteChar(buf)
@@ -162,7 +163,7 @@ CORE:
 			case f.url:
 				mooze.url = mooze.message
 				r.RenderTextTo(
-					r.TtyRow-1, 1,
+					r.TtyRow()-1, 1,
 					NewColorContext("ffff55").Colorize("url: "+mooze.url),
 				)
 				r.RenderTextTo(3, 1, "\x1B[2K")
@@ -212,7 +213,7 @@ CORE:
 		// output
 		// ----------------------------------------------------------------------
 		r.RenderTextTo(
-			r.TtyRow, 1,
+			r.TtyRow(), 1,
 			NewColorContext("ff0000", "ffffff").Colorize("Cursor Coord: %3d, %3d"),
 			r.CursorX, r.CursorY,
 		)

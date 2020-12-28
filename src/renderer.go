@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 	"syscall"
 
 	"github.com/RudyPark3091/mooze/src/util"
@@ -22,8 +21,7 @@ import (
  *   V
  */
 type Renderer struct {
-	TtyCol int
-	TtyRow int
+	tty *os.File
 
 	// row of cursor position
 	CursorX int
@@ -32,25 +30,24 @@ type Renderer struct {
 }
 
 func NewRenderer() *Renderer {
-	r := &Renderer{0, 0, 1, 1}
-	w, h, err := terminal.GetSize(int(openTty().Fd()))
-	if err != nil {
-		panic(err)
-	}
-
-	r.TtyCol = w
-	r.TtyRow = h
+	r := &Renderer{openTty(), 1, 1}
 	return r
 }
 
-func (r *Renderer) HandleResize() {
-	w, h, err := terminal.GetSize(int(openTty().Fd()))
+func (r *Renderer) TtyCol() int {
+	w, _, err := terminal.GetSize(int(openTty().Fd()))
 	if err != nil {
 		panic(err)
 	}
+	return w
+}
 
-	r.TtyCol = w
-	r.TtyRow = h
+func (r *Renderer) TtyRow() int {
+	_, h, err := terminal.GetSize(int(openTty().Fd()))
+	if err != nil {
+		panic(err)
+	}
+	return h
 }
 
 func (r *Renderer) ReadChar(fd *os.File, buf []byte) (int, error) {
@@ -66,7 +63,7 @@ func (r *Renderer) WriteChar(buf []byte) {
 		offset = 2
 	}
 
-	if r.TtyCol <= r.CursorY {
+	if r.TtyCol() <= r.CursorY {
 		r.CursorX += 1
 		r.CursorY += offset
 	} else {
@@ -124,7 +121,7 @@ func (r *Renderer) MoveCursorLeft() {
 }
 
 func (r *Renderer) MoveCursorRight() {
-	if r.CursorY < r.TtyCol {
+	if r.CursorY < r.TtyCol() {
 		r.CursorY += 1
 		r.MoveCursorTo(r.CursorX, r.CursorY)
 	}
@@ -138,7 +135,7 @@ func (r *Renderer) MoveCursorUp() {
 }
 
 func (r *Renderer) MoveCursorDown() {
-	if r.CursorX < r.TtyRow {
+	if r.CursorX < r.TtyRow() {
 		r.CursorX += 1
 		r.MoveCursorTo(r.CursorX, r.CursorY)
 	}
@@ -166,23 +163,6 @@ func (r *Renderer) RenderTextNoClear(x, y int, s string, a ...interface{}) {
 	r.MoveCursorTo(x, y)
 	fmt.Printf(s, a...)
 	r.MoveCursorTo(r.CursorX, r.CursorY)
-}
-
-func (r *Renderer) HorizontalLine(x, y int, l int) {
-	// r.RenderTextNoClear(x, y, strings.Repeat("\u2500", l))
-	r.RenderTextNoClear(x, y, strings.Repeat(
-		NewColorContext("ff9999").Colorize("\u2501"), l))
-}
-
-func (r *Renderer) VerticalLine(x, y int, l int) {
-	// for i := 0; i < l; i++ {
-	// 	r.RenderTextNoClear(x+i, y, "\u2502")
-	// }
-
-	for i := 0; i < l; i++ {
-		r.RenderTextNoClear(x+i, y,
-			NewColorContext("ff9999").Colorize("\u2503"))
-	}
 }
 
 func (r *Renderer) RenderWindow(w Window) {

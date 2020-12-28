@@ -70,19 +70,55 @@ type ColorContext struct {
 }
 
 type FrontColorEnum struct {
-	red     ColorContext
-	blue    ColorContext
-	green   ColorContext
-	yellow  ColorContext
-	cyan    ColorContext
-	orange  ColorContext
-	magenta ColorContext
-	gray    ColorContext
-	black   ColorContext
-	emerald ColorContext
-	purple  ColorContext
-	tomato  ColorContext
-	coral   ColorContext
+	red     *ColorContext
+	blue    *ColorContext
+	green   *ColorContext
+	yellow  *ColorContext
+	cyan    *ColorContext
+	orange  *ColorContext
+	magenta *ColorContext
+	gray    *ColorContext
+	black   *ColorContext
+	emerald *ColorContext
+	purple  *ColorContext
+	tomato  *ColorContext
+	coral   *ColorContext
+}
+
+var FColors = FrontColorEnum{
+	red:     NewColorContext("ff0000"),
+	blue:    NewColorContext("0000ff"),
+	green:   NewColorContext("00ff00"),
+	yellow:  NewColorContext("ffff00"),
+	cyan:    NewColorContext("00ffff"),
+	orange:  NewColorContext("f39c12"),
+	magenta: NewColorContext("ff00ff"),
+}
+
+type BackColorEnum struct {
+	red     *ColorContext
+	blue    *ColorContext
+	green   *ColorContext
+	yellow  *ColorContext
+	cyan    *ColorContext
+	orange  *ColorContext
+	magenta *ColorContext
+	gray    *ColorContext
+	black   *ColorContext
+	emerald *ColorContext
+	purple  *ColorContext
+	tomato  *ColorContext
+	coral   *ColorContext
+}
+
+var BColors = BackColorEnum{
+	red:     NewColorContext("ff0000"),
+	blue:    NewColorContext("0000ff"),
+	green:   NewColorContext("00ff00"),
+	yellow:  NewColorContext("ffff00"),
+	cyan:    NewColorContext("00ffff"),
+	orange:  NewColorContext("f39c12"),
+	magenta: NewColorContext("ff00ff"),
 }
 
 // ffffff to Color{255, 255, 255}
