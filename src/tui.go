@@ -27,7 +27,10 @@ const (
 	SHIFTU input = 85
 
 	A input = 97
+	B input = 98
+	H input = 104
 	I input = 105
+	M input = 109
 	Q input = 113
 	U input = 117
 )
@@ -210,7 +213,8 @@ type Window struct {
 	CharBottomLeft  string
 	CharBottomRight string
 	Focused         bool
-	Color           *ColorContext
+	FrameColor      *ColorContext
+	Content         []string
 }
 
 func NewWindow(x, y, sizeX, sizeY int, hex string) *Window {
@@ -224,6 +228,7 @@ func NewWindow(x, y, sizeX, sizeY int, hex string) *Window {
 		"\u2518",
 		false,
 		NewColorContext(hex),
+		make([]string, x),
 	}
 }
 

@@ -6,12 +6,14 @@
 package mooze
 
 import (
+	"io"
 	"os"
 	"runtime"
 	"strings"
 	"syscall"
 
 	"github.com/RudyPark3091/mooze/src/util"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 type flags struct {
@@ -27,6 +29,7 @@ func NewFlags() *flags {
 
 type mooze struct {
 	tty     *os.File
+	term    *terminal.Terminal
 	history string
 	header  string
 	body    string
@@ -39,14 +42,26 @@ type mooze struct {
 func NewMooze() *mooze {
 	return &mooze{
 		tty:     openTty(),
-		history: "",           // history
-		header:  "",           // header
-		body:    "",           // body
-		url:     "",           // url
-		method:  GET,          // method
-		os:      runtime.GOOS, // os
-		message: "",           // message
+		term:    InitTerminal(),
+		history: "",
+		header:  "",
+		body:    "",
+		url:     "",
+		method:  GET,
+		os:      runtime.GOOS,
+		message: "",
 	}
+}
+
+func InitTerminal() *terminal.Terminal {
+	term := terminal.NewTerminal(
+		struct {
+			io.Reader
+			io.Writer
+		}{os.Stdin, os.Stdout}, "",
+	)
+	term.SetPrompt(NewColorContext("ff5555").Colorize("> "))
+	return term
 }
 
 func Run() {
@@ -118,14 +133,31 @@ CORE:
 		}
 		buf := make([]byte, syscall.SizeofInotifyEvent)
 
-		r.ReadChar(tty, buf)
+		if !wflag {
+			r.ReadChar(tty, buf)
+		}
+		if wflag {
+			line, _ := mooze.term.ReadLine()
+			r.MoveCursorTo(1, 1)
+			r.ClearLine()
+
+			MoozeStatusBar.Now = MoozeStatusBar.Normal
+			mooze.message = line
+			switch {
+			case f.url:
+				mooze.url = mooze.message
+				r.RenderTextNoClear(
+					r.TtyRow()-2, 8,
+					NewColorContext("ffff55").Colorize(mooze.url),
+				)
+				req.url = mooze.url
+				f.url = false
+			}
+			wflag = false
+		}
 		rn := util.BytesToRune(buf)
 
 		r.RenderTextTo(2, 1, "Rune num: %-10d Buffer: %d", rn, buf)
-
-		if wflag {
-			r.WriteChar(buf)
-		}
 
 		/* process user inputs
 		 * -------------------------------------------------------------------
@@ -240,12 +272,6 @@ CORE:
 			f.url = true
 			MoozeStatusBar.Now = MoozeStatusBar.Url
 			wflag = true
-
-		// appending input character into message
-		default:
-			if wflag {
-				msg = msg + string(rn)
-			}
 		}
 	}
 

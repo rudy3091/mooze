@@ -179,18 +179,18 @@ func (r *Renderer) RenderTextNoClear(x, y int, s string, a ...interface{}) {
 }
 
 func (r *Renderer) RenderWindow(w *Window) {
-	r.RenderTextNoClear(w.x, w.y, w.charTopLeft)
-	r.RenderTextNoClear(w.x+w.sizeX, w.y, w.charBottomLeft)
-	r.RenderTextNoClear(w.x, w.y+w.sizeY, w.charTopRight)
-	r.RenderTextNoClear(w.x+w.sizeX, w.y+w.sizeY, w.charBottomRight)
+	r.RenderTextNoClear(w.X, w.Y, w.CharTopLeft)
+	r.RenderTextNoClear(w.X+w.SizeX, w.Y, w.CharBottomLeft)
+	r.RenderTextNoClear(w.X, w.Y+w.SizeY, w.CharTopRight)
+	r.RenderTextNoClear(w.X+w.SizeX, w.Y+w.SizeY, w.CharBottomRight)
 
-	for i := 0; i < w.sizeY-1; i++ {
-		r.RenderTextNoClear(w.x, w.y+i+1, w.charHorizontal)
-		r.RenderTextNoClear(w.x+w.sizeX, w.y+i+1, w.charHorizontal)
+	for i := 0; i < w.SizeY-1; i++ {
+		r.RenderTextNoClear(w.X, w.Y+i+1, w.CharHorizontal)
+		r.RenderTextNoClear(w.X+w.SizeX, w.Y+i+1, w.CharHorizontal)
 	}
 
-	for i := 0; i < w.sizeX-1; i++ {
-		r.RenderTextNoClear(w.x+i+1, w.y, w.charVertical)
-		r.RenderTextNoClear(w.x+i+1, w.y+w.sizeY, w.charVertical)
+	for i := 0; i < w.SizeX-1; i++ {
+		r.RenderTextNoClear(w.X+i+1, w.Y, w.CharVertical)
+		r.RenderTextNoClear(w.X+i+1, w.Y+w.SizeY, w.CharVertical)
 	}
 }
