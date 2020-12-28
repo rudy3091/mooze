@@ -70,8 +70,7 @@ func Run() {
 	wflag := false
 
 	// renderwindow test
-	w := Window{10, 10, 10, 10, "\u2500", "\u2502", "\u250c", "\u2510", "\u2514", "\u2518"}
-	r.RenderWindow(w)
+	w := NewWindow(6, 1, 15, 20)
 
 CORE:
 	for {
@@ -98,11 +97,7 @@ CORE:
 
 		// drawing window
 		// horizontal line
-		r.HorizontalLine(5, 1, r.TtyCol)
-		r.HorizontalLine(r.TtyRow-8, 1, r.TtyCol)
-		// vertical line
-		r.VerticalLine(5, 1, r.TtyRow-13)
-		r.VerticalLine(5, r.TtyCol, r.TtyRow-13)
+		r.RenderWindow(w)
 
 		if wflag {
 			r.WriteChar(buf)

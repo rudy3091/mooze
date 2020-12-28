@@ -177,6 +177,10 @@ type Window struct {
 	charBottomRight string
 }
 
+func NewWindow(x, y, sizeX, sizeY int) Window {
+	return Window{x, y, sizeX, sizeY, "\u2500", "\u2502", "\u250c", "\u2510", "\u2514", "\u2518"}
+}
+
 // returns file descriptor of /dev/tty
 func openTty() *os.File {
 	tty, err := os.OpenFile("/dev/tty", syscall.O_RDONLY, 0)

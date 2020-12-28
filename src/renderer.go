@@ -11,13 +11,23 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+/*
+ * col, y
+ *   -------------------------->
+ * r | Screen
+ * o |
+ * w |
+ * , |
+ * x |
+ *   V
+ */
 type Renderer struct {
 	TtyCol int
 	TtyRow int
 
-	// column of cursor position
-	CursorX int
 	// row of cursor position
+	CursorX int
+	// column of cursor position
 	CursorY int
 }
 
@@ -56,11 +66,11 @@ func (r *Renderer) WriteChar(buf []byte) {
 		offset = 2
 	}
 
-	if r.TtyCol <= r.CursorX {
-		r.CursorY += 1
-		r.CursorX += offset
+	if r.TtyCol <= r.CursorY {
+		r.CursorX += 1
+		r.CursorY += offset
 	} else {
-		r.CursorX += offset
+		r.CursorY += offset
 	}
 }
 
@@ -101,35 +111,36 @@ func (r *Renderer) ShowCursor() {
 	fmt.Print("\x1B[?25h")
 }
 
+// move cursor to (x, y): x row & y col
 func (r *Renderer) MoveCursorTo(x, y int) {
 	fmt.Printf("\x1B[%d;%dH", x, y)
 }
 
 func (r *Renderer) MoveCursorLeft() {
-	if r.CursorX > 1 {
-		r.CursorX -= 1
-		r.MoveCursorTo(r.CursorY, r.CursorX)
+	if r.CursorY > 1 {
+		r.CursorY -= 1
+		r.MoveCursorTo(r.CursorX, r.CursorY)
 	}
 }
 
 func (r *Renderer) MoveCursorRight() {
-	if r.CursorX < r.TtyCol {
-		r.CursorX += 1
-		r.MoveCursorTo(r.CursorY, r.CursorX)
+	if r.CursorY < r.TtyCol {
+		r.CursorY += 1
+		r.MoveCursorTo(r.CursorX, r.CursorY)
 	}
 }
 
 func (r *Renderer) MoveCursorUp() {
-	if r.CursorY > 1 {
-		r.CursorY -= 1
-		r.MoveCursorTo(r.CursorY, r.CursorX)
+	if r.CursorX > 1 {
+		r.CursorX -= 1
+		r.MoveCursorTo(r.CursorX, r.CursorY)
 	}
 }
 
 func (r *Renderer) MoveCursorDown() {
-	if r.CursorY < r.TtyRow {
-		r.CursorY += 1
-		r.MoveCursorTo(r.CursorY, r.CursorX)
+	if r.CursorX < r.TtyRow {
+		r.CursorX += 1
+		r.MoveCursorTo(r.CursorX, r.CursorY)
 	}
 }
 
@@ -148,13 +159,13 @@ func (r *Renderer) RenderTextTo(x, y int, s string, a ...interface{}) {
 	r.MoveCursorTo(x, y)
 	r.ClearLine()
 	fmt.Printf(s, a...)
-	r.MoveCursorTo(r.CursorY, r.CursorX)
+	r.MoveCursorTo(r.CursorX, r.CursorY)
 }
 
 func (r *Renderer) RenderTextNoClear(x, y int, s string, a ...interface{}) {
 	r.MoveCursorTo(x, y)
 	fmt.Printf(s, a...)
-	r.MoveCursorTo(r.CursorY, r.CursorX)
+	r.MoveCursorTo(r.CursorX, r.CursorY)
 }
 
 func (r *Renderer) HorizontalLine(x, y int, l int) {
