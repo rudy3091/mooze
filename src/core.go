@@ -144,7 +144,7 @@ CORE:
 			case f.history:
 				f.history = false
 			}
-			statusBar.Now = statusBar.Normal
+			MoozeStatusBar.Now = MoozeStatusBar.Normal
 			r.RenderTextTo(3, 1, "\x1B[2K")
 			r.ClearLine()
 			r.CursorX = 1
@@ -167,7 +167,7 @@ CORE:
 
 		// process user input
 		case rune(ENTER):
-			statusBar.Now = statusBar.Normal
+			MoozeStatusBar.Now = MoozeStatusBar.Normal
 			r.ClearLine()
 			r.CursorX = 1
 			r.CursorY = 1
@@ -218,7 +218,7 @@ CORE:
 		case rune(U):
 			f.url = true
 			r.RenderTextTo(3, 1, NewColorContext("ff8888").Colorize("-- URL --"))
-			statusBar.Now = statusBar.Url
+			MoozeStatusBar.Now = MoozeStatusBar.Url
 			wflag = true
 
 		// appending input character into message
@@ -233,9 +233,9 @@ CORE:
 		// StatusBar: (TtyRow(), 1)
 		r.RenderTextTo(
 			r.TtyRow(), 1,
-			NewColorContext("444444", statusBar.Now.Hex).Colorize("%s")+"     "+
+			NewColorContext("444444", MoozeStatusBar.Now.Hex).Colorize("%s")+"     "+
 				NewColorContext("ff0000", "ffffff").Colorize("Cursor Coord: %3d, %3d"),
-			statusBar.Now.Name, r.CursorX, r.CursorY,
+			MoozeStatusBar.Now.Name, r.CursorX, r.CursorY,
 		)
 	}
 
