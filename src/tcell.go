@@ -2,6 +2,7 @@ package mooze
 
 import (
 	"github.com/gdamore/tcell"
+	"github.com/mattn/go-runewidth"
 )
 
 type MoozeWindow struct {
@@ -28,4 +29,8 @@ func (w *MoozeWindow) initScreen() {
 		s.DisableMouse()
 	}
 	_screen = s
+}
+
+func runeWidth(r rune) int {
+	return runewidth.RuneWidth(r)
 }
