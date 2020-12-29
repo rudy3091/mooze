@@ -10,7 +10,6 @@ import (
 	"os"
 	"runtime"
 	"strings"
-	"syscall"
 
 	"github.com/RudyPark3091/mooze/src/util"
 	"golang.org/x/crypto/ssh/terminal"
@@ -78,8 +77,8 @@ func Run() {
 	defer r.ClearConsoleUnix()
 	state := r.ToRawMode(tty)
 	defer r.RestoreState(tty, state)
-	r.UseNonblockIo(tty, true)
-	defer r.UseNonblockIo(tty, false)
+	// r.UseNonblockIo(tty, true)
+	// defer r.UseNonblockIo(tty, false)
 
 	// clears console
 	// every screen context should be printed after this line
@@ -131,7 +130,7 @@ CORE:
 			r.HideCursor()
 			defer r.ShowCursor()
 		}
-		buf := make([]byte, syscall.SizeofInotifyEvent)
+		buf := make([]byte, 4)
 
 		if !wflag {
 			r.ReadChar(tty, buf)
@@ -165,7 +164,9 @@ CORE:
 		 * FIXED 2: typing Ctrl-j makes unintentional new line
 		 * FIXED 3: if buffer's length == 1 Cursor coordinate not works
 		 * FIXME 4: no need to re-render all screen in every input
-		 * FIXME 5: can't type 'u' in url input mode
+		 * FIXED 5: can't type 'u' in url input mode
+		 * FIXME 6: when pressed ctrl + c while input mode, mooze.term dies
+		 * FIXME 7: if url is edited, line is not cleared
 		 *
 		 * input mode:
 		 * - u for url
@@ -178,6 +179,9 @@ CORE:
 		 *
 		 * quit application
 		 * - Ctrl + q
+		 *
+		 * re-render screen
+		 * - r
 		 *
 		 */
 
@@ -272,6 +276,17 @@ CORE:
 			f.url = true
 			MoozeStatusBar.Now = MoozeStatusBar.Url
 			wflag = true
+
+		case rune(R):
+			r.ClearConsoleUnix()
+			r.RenderWindow(statusWindow)
+			r.RenderTextNoClear(r.TtyRow()-2, 3, "\x1B[4m\x1B[31mu\x1B[0mrl: %s", FColors.yellow.Colorize(mooze.url))
+			r.RenderTextNoClear(r.TtyRow()-3, 3, "\x1B[4m\x1B[31mm\x1B[0method: %s",
+				FColors.yellow.Colorize(methodTypeToString(GET)))
+			r.RenderTextNoClear(r.TtyRow()-4, 3, "\x1B[4m\x1B[31mh\x1B[0meader: %s", mooze.header)
+			r.RenderTextNoClear(r.TtyRow()-5, 3, "\x1B[4m\x1B[31mb\x1B[0mody: %s", mooze.body)
+			r.RenderTextNoClear(r.TtyRow()-6, 3, "history: %s", mooze.history)
+			r.RenderTextNoClear(r.TtyRow()-7, 3, FColors.yellow.Colorize("send: ctrl + s"))
 		}
 	}
 

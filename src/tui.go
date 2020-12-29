@@ -32,6 +32,7 @@ const (
 	I input = 105
 	M input = 109
 	Q input = 113
+	R input = 114
 	U input = 117
 )
 

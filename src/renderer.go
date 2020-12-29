@@ -3,7 +3,6 @@ package mooze
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"syscall"
 
 	"github.com/RudyPark3091/mooze/src/util"
@@ -101,9 +100,10 @@ func (r *Renderer) RestoreState(fd *os.File, s *terminal.State) {
 
 func (r *Renderer) ClearConsoleUnix() {
 	// for UNIX machine
-	cmd := exec.Command("clear")
-	cmd.Stdout = os.Stdout
-	cmd.Run()
+	// cmd := exec.Command("clear")
+	// cmd.Stdout = os.Stdout
+	// cmd.Run()
+	fmt.Print("\x1B[2J")
 }
 
 func (r *Renderer) UseNonblockIo(fd *os.File, b bool) {
