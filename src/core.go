@@ -66,7 +66,7 @@ func InitTerminal() *terminal.Terminal {
 func Run() {
 	// applications state
 	mooze := NewMooze()
-	mooze.ms.InitScreen(true)
+	mooze.ms.InitScreen(false)
 
 	// // input mode state
 	// f := NewFlags()
@@ -89,9 +89,11 @@ CORE:
 			width  int
 			height int
 		}{w - 1, 6}
+		window := NewMoozeWindow(h-status.height-1, 1, status.height, status.width-1, false)
+		window.Title("hi")
 		mooze.ms.RenderWindow(
-			NewMoozeWindow(h-status.height-1, 1, status.height, status.width-1, false),
-			mooze.ms.DefaultStyle(),
+			window,
+			ToStyle("red"),
 		)
 		mooze.ms.Reload()
 
@@ -107,6 +109,6 @@ CORE:
 			}
 		}
 	}
-	defer r.ClearConsoleUnix()
-	defer r.ShowCursor()
+	r.ClearConsoleUnix()
+	r.ShowCursor()
 }

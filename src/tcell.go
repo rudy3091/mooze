@@ -20,16 +20,22 @@ type MoozeWindow struct {
 	sizeX    int
 	sizeY    int
 	hasTitle bool
+	title    string
 }
 
-func NewMoozeWindow(x, y, sizeX, sizeY int, t bool) MoozeWindow {
-	return MoozeWindow{
+func NewMoozeWindow(x, y, sizeX, sizeY int, t bool) *MoozeWindow {
+	return &MoozeWindow{
 		x:        x,
 		y:        y,
 		sizeX:    sizeX,
 		sizeY:    sizeY,
 		hasTitle: t,
 	}
+}
+
+func (w *MoozeWindow) Title(t string) {
+	w.hasTitle = true
+	w.title = t
 }
 
 func (m *MoozeScreen) InitScreen(mouse bool) {
@@ -70,7 +76,7 @@ func (m *MoozeScreen) Print(y, x int, str string, style tcell.Style) {
 	}
 }
 
-func (m *MoozeScreen) RenderWindow(w MoozeWindow, style tcell.Style) {
+func (m *MoozeScreen) RenderWindow(w *MoozeWindow, style tcell.Style) {
 	for col := w.y; col <= w.y+w.sizeY; col++ {
 		m.s.SetContent(col, w.x, tcell.RuneHLine, nil, style)
 		m.s.SetContent(col, w.x+w.sizeX, tcell.RuneHLine, nil, style)
@@ -90,6 +96,9 @@ func (m *MoozeScreen) RenderWindow(w MoozeWindow, style tcell.Style) {
 			m.s.SetContent(col, row, ' ', nil, style)
 		}
 	}
+	if w.hasTitle && len(w.title) < w.sizeY {
+		m.Print(w.x, w.y+1, w.title, style)
+	}
 }
 
 func (m *MoozeScreen) Clear() {
@@ -107,4 +116,18 @@ func (m *MoozeScreen) EmitEvent() tcell.Event {
 
 func runeWidth(r rune) int {
 	return runewidth.RuneWidth(r)
+}
+
+func GetColor(n string) tcell.Color {
+	return tcell.ColorNames[n]
+}
+
+func ToStyle(f ...string) tcell.Style {
+	s := tcell.StyleDefault
+	if len(f) == 2 {
+		return s.Foreground(GetColor(f[0])).
+			Background(GetColor(f[1]))
+	} else {
+		return s.Foreground(GetColor(f[0]))
+	}
 }
