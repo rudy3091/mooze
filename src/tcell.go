@@ -105,7 +105,16 @@ func (m *MoozeScreen) Clear() {
 	m.s.Clear()
 }
 
+func (m *MoozeScreen) Show() {
+	m.s.Show()
+}
+
+func (m *MoozeScreen) Sync() {
+	m.s.Sync()
+}
+
 func (m *MoozeScreen) Reload() {
+	m.r.ClearConsoleUnix()
 	m.s.Show()
 	m.s.Sync()
 }

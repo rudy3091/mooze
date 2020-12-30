@@ -1,7 +1,4 @@
-// TODO: stop displaying rune & buffer code - for debug
-// TODO: terminal width processing - what if input exceeds TtyCol?
-//       -> Maybe I should change input methology terminal.Newterminal()?
-// TODO: reactive terminal - change the layout if terminal size varies
+// TODO: make terminal cooked on exit
 
 package mooze
 
@@ -80,26 +77,29 @@ func Run() {
 	// r.ClearConsoleUnix()
 
 	// msg := ""
-	// wflag := false
+	wflag := false
+	w, h := mooze.ms.Size()
 
 CORE:
 	for {
-		w, h := mooze.ms.Size()
 		status := struct {
 			width  int
 			height int
 		}{w - 1, 6}
 		window := NewMoozeWindow(h-status.height-1, 1, status.height, status.width-1, false)
 		window.Title("hi")
-		mooze.ms.RenderWindow(
-			window,
-			ToStyle("red"),
-		)
-		mooze.ms.Reload()
+		if !wflag {
+			mooze.ms.RenderWindow(
+				window,
+				ToStyle("red"),
+			)
+		}
+		mooze.ms.Show()
 
 		ev := mooze.ms.EmitEvent()
 		switch ev := ev.(type) {
 		case *tcell.EventResize:
+			w, h = mooze.ms.Size()
 			mooze.ms.Clear()
 			mooze.ms.Reload()
 		case *tcell.EventKey:
