@@ -10,14 +10,16 @@ import (
 )
 
 /*
- * col, y
+ * col, y: width
  *   -------------------------->
  * r | Screen
  * o |
  * w |
  * , |
  * x |
+ * : |
  *   V
+ * height
  */
 type Renderer struct {
 	tty *os.File

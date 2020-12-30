@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/RudyPark3091/mooze/src/util"
+	"github.com/gdamore/tcell"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -184,6 +185,12 @@ CORE:
 		 * - r
 		 *
 		 */
+		ms := &MoozeScreen{nil, r}
+		ms.InitScreen(true)
+		ms.RenderWindow(
+			MoozeWindow{10, 10, 5, 20, true},
+			tcell.StyleDefault,
+		)
 
 		switch rn {
 		// exit application
