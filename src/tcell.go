@@ -10,6 +10,10 @@ type MoozeScreen struct {
 	r *Renderer
 }
 
+func NewMoozeScreen() *MoozeScreen {
+	return &MoozeScreen{}
+}
+
 type MoozeWindow struct {
 	x        int
 	y        int
