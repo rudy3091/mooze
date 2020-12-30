@@ -6,6 +6,7 @@
 package mooze
 
 import (
+	"github.com/gdamore/tcell"
 	"io"
 	"os"
 	"runtime"
@@ -70,7 +71,7 @@ func Run() {
 	// // input mode state
 	// f := NewFlags()
 
-	// r := NewRenderer()
+	r := NewRenderer()
 	// h := NewHistoryWriter()
 	// req := NewRequest("", GET, "", "")
 
@@ -80,4 +81,32 @@ func Run() {
 
 	// msg := ""
 	// wflag := false
+
+CORE:
+	for {
+		w, h := mooze.ms.Size()
+		status := struct {
+			width  int
+			height int
+		}{w - 1, 6}
+		mooze.ms.RenderWindow(
+			NewMoozeWindow(h-status.height-1, 1, status.height, status.width-1, false),
+			mooze.ms.DefaultStyle(),
+		)
+		mooze.ms.Reload()
+
+		ev := mooze.ms.EmitEvent()
+		switch ev := ev.(type) {
+		case *tcell.EventResize:
+			mooze.ms.Clear()
+			mooze.ms.Reload()
+		case *tcell.EventKey:
+			switch ev.Rune() {
+			case 'q':
+				break CORE
+			}
+		}
+	}
+	defer r.ClearConsoleUnix()
+	defer r.ShowCursor()
 }

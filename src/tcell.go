@@ -32,8 +32,6 @@ func NewMoozeWindow(x, y, sizeX, sizeY int, t bool) MoozeWindow {
 	}
 }
 
-var _screen tcell.Screen
-
 func (m *MoozeScreen) InitScreen(mouse bool) {
 	s, err := tcell.NewScreen()
 	if err != nil {
@@ -48,6 +46,10 @@ func (m *MoozeScreen) InitScreen(mouse bool) {
 		s.DisableMouse()
 	}
 	m.s = s
+}
+
+func (m *MoozeScreen) DefaultStyle() tcell.Style {
+	return tcell.StyleDefault
 }
 
 func (m *MoozeScreen) Size() (int, int) {
