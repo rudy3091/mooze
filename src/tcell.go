@@ -3,6 +3,7 @@ package mooze
 import (
 	"github.com/gdamore/tcell"
 	"github.com/mattn/go-runewidth"
+	"os"
 )
 
 type MoozeScreen struct {
@@ -139,4 +140,9 @@ func ToStyle(f ...string) tcell.Style {
 	} else {
 		return s.Foreground(GetColor(f[0]))
 	}
+}
+
+func (m *MoozeScreen) Exit(code int) {
+	m.s.Fini()
+	os.Exit(code)
 }

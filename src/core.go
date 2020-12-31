@@ -1,5 +1,3 @@
-// TODO: make terminal cooked on exit
-
 package mooze
 
 import (
@@ -68,7 +66,7 @@ func Run() {
 	// // input mode state
 	// f := NewFlags()
 
-	r := NewRenderer()
+	// r := NewRenderer()
 	// h := NewHistoryWriter()
 	// req := NewRequest("", GET, "", "")
 
@@ -109,6 +107,5 @@ CORE:
 			}
 		}
 	}
-	r.ClearConsoleUnix()
-	r.ShowCursor()
+	mooze.ms.Exit(0)
 }
