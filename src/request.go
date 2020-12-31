@@ -1,6 +1,9 @@
 package mooze
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/http"
 )
@@ -61,4 +64,25 @@ func (r *MoozeRequest) Send() *http.Response {
 func (r *MoozeRequest) Body(res *http.Response) []byte {
 	b, _ := ioutil.ReadAll(res.Body)
 	return b
+}
+
+func (r *MoozeRequest) Prettify(data []byte) []string {
+	j := &bytes.Buffer{}
+	json.Indent(j, data, "", "  ")
+
+	str := []string{}
+	buf := ""
+	rd := bytes.NewReader(j.Bytes())
+	for {
+		b, err := rd.ReadByte()
+		if err == io.EOF {
+			break
+		}
+		buf += string(b)
+		if b == '\n' {
+			str = append(str, buf)
+			buf = ""
+		}
+	}
+	return str
 }

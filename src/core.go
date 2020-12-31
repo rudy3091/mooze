@@ -151,7 +151,7 @@ CORE:
 				res := mooze.req.Send()
 				defer res.Body.Close()
 				rData := mooze.req.Body(res)
-				layout[1].Content([]string{string(rData)})
+				layout[1].Content(mooze.req.Prettify(rData))
 				mooze.renderLayout(layout)
 				mooze.ms.Show()
 			}
