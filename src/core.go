@@ -60,7 +60,36 @@ func InitTerminal() *terminal.Terminal {
 
 func initLayout(w, h int) []*MoozeWindow {
 	window := []*MoozeWindow{}
+	urlHeight := 1
+	statusHeight := 5
+	rHeight := h - (urlHeight + statusHeight)
+
+	rw := 0
+	if w%2 == 1 {
+		rw = w/2 + 1
+	} else {
+		rw = w / 2
+	}
+
+	w1 := NewMoozeWindow(urlHeight, 0, rHeight, rw, false)
+	w1.Title("req")
+	window = append(window, w1)
+
+	w2 := NewMoozeWindow(urlHeight, rw, rHeight, w-rw, false)
+	w2.Title("res")
+	window = append(window, w2)
+
+	w3 := NewMoozeWindow(h-statusHeight, 0, statusHeight, w, false)
+	w3.Title("status")
+	window = append(window, w3)
+
 	return window
+}
+
+func (m *mooze) renderLayout(w []*MoozeWindow) {
+	for _, window := range w {
+		m.ms.RenderWindow(window, ToStyle("red"))
+	}
 }
 
 func Run() {
@@ -80,30 +109,21 @@ func Run() {
 	// r.ClearConsoleUnix()
 
 	// msg := ""
-	wflag := false
+	// wflag := false
 	w, h := mooze.ms.Size()
+	layout := initLayout(w, h)
 
 CORE:
 	for {
-		status := struct {
-			width  int
-			height int
-		}{w - 1, 6}
-		window := NewMoozeWindow(h-status.height, 1, status.height, status.width, false)
-		window.Title("hi")
-		if !wflag {
-			mooze.ms.RenderWindow(
-				window,
-				ToStyle("red"),
-			)
-		}
+		mooze.renderLayout(layout)
 		mooze.ms.Show()
 
 		ev := mooze.ms.EmitEvent()
 		switch ev := ev.(type) {
 		case *tcell.EventResize:
 			w, h = mooze.ms.Size()
-			mooze.ms.Clear()
+			layout = initLayout(w, h)
+			mooze.renderLayout(layout)
 			mooze.ms.Reload()
 		case *tcell.EventKey:
 			switch ev.Rune() {

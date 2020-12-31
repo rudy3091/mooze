@@ -1,9 +1,10 @@
 package mooze
 
 import (
+	"os"
+
 	"github.com/gdamore/tcell"
 	"github.com/mattn/go-runewidth"
-	"os"
 )
 
 type MoozeScreen struct {
@@ -17,6 +18,7 @@ func NewMoozeScreen() *MoozeScreen {
 
 type MoozeWindow struct {
 	// coord of window's Upper Left point
+	// from (0, 0) to (m, n)
 	x int
 	y int
 	// length of window's vertical line
@@ -118,7 +120,7 @@ func (m *MoozeScreen) Sync() {
 }
 
 func (m *MoozeScreen) Reload() {
-	m.r.ClearConsoleUnix()
+	m.s.Clear()
 	m.s.Show()
 	m.s.Sync()
 }
