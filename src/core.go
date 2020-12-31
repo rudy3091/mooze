@@ -1,11 +1,11 @@
 package mooze
 
 import (
-	"github.com/gdamore/tcell"
 	"io"
 	"os"
 	"runtime"
 
+	"github.com/gdamore/tcell"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -23,31 +23,22 @@ func NewFlags() *flags {
 type mooze struct {
 	term    *terminal.Terminal
 	ms      *MoozeScreen
+	req     *MoozeRequest
 	history string // will update to file
 	os      string
-
-	header  string
-	body    string
-	url     string
-	method  methodtype
-	message string
 }
 
 func NewMooze() *mooze {
 	return &mooze{
-		term:    InitTerminal(),
+		term:    initTerminal(),
 		ms:      NewMoozeScreen(),
-		method:  GET,
-		os:      runtime.GOOS,
+		req:     NewMoozeRequest(),
 		history: "",
-		header:  "",
-		body:    "",
-		url:     "",
-		message: "",
+		os:      runtime.GOOS,
 	}
 }
 
-func InitTerminal() *terminal.Terminal {
+func initTerminal() *terminal.Terminal {
 	term := terminal.NewTerminal(
 		struct {
 			io.Reader
@@ -58,10 +49,10 @@ func InitTerminal() *terminal.Terminal {
 	return term
 }
 
-func initLayout(w, h int) []*MoozeWindow {
+func (m *mooze) initLayout(w, h int) []*MoozeWindow {
 	window := []*MoozeWindow{}
 	urlHeight := 1
-	statusHeight := 5
+	statusHeight := 7
 	rHeight := h - (urlHeight + statusHeight)
 
 	rw := 0
@@ -73,6 +64,7 @@ func initLayout(w, h int) []*MoozeWindow {
 
 	w1 := NewMoozeWindow(urlHeight, 0, rHeight, rw, false)
 	w1.Title("req")
+	w1.Content([]string{"request body"})
 	window = append(window, w1)
 
 	w2 := NewMoozeWindow(urlHeight, rw, rHeight, w-rw, false)
@@ -81,6 +73,10 @@ func initLayout(w, h int) []*MoozeWindow {
 
 	w3 := NewMoozeWindow(h-statusHeight, 0, statusHeight, w, false)
 	w3.Title("status")
+	w3.Content([]string{
+		"url: " + m.req.url,
+		"method: " + methodTypeToString(m.req.method),
+	})
 	window = append(window, w3)
 
 	return window
@@ -88,8 +84,22 @@ func initLayout(w, h int) []*MoozeWindow {
 
 func (m *mooze) renderLayout(w []*MoozeWindow) {
 	for _, window := range w {
-		m.ms.RenderWindow(window, ToStyle("red"))
+		m.ms.RenderWindow(window, ToStyle("white"))
 	}
+}
+
+func (m *mooze) readLine() string {
+	m.ms.r.ShowCursor()
+	m.ms.r.MoveCursorTo(1, 1)
+	m.ms.r.ClearLine()
+	l, err := m.term.ReadLine()
+	if err != nil {
+		panic(err)
+	}
+	m.ms.r.MoveCursorTo(1, 1)
+	m.ms.r.ClearLine()
+	m.ms.r.HideCursor()
+	return l
 }
 
 func Run() {
@@ -111,7 +121,7 @@ func Run() {
 	// msg := ""
 	// wflag := false
 	w, h := mooze.ms.Size()
-	layout := initLayout(w, h)
+	layout := mooze.initLayout(w, h)
 
 CORE:
 	for {
@@ -122,13 +132,28 @@ CORE:
 		switch ev := ev.(type) {
 		case *tcell.EventResize:
 			w, h = mooze.ms.Size()
-			layout = initLayout(w, h)
+			layout = mooze.initLayout(w, h)
 			mooze.renderLayout(layout)
 			mooze.ms.Reload()
 		case *tcell.EventKey:
 			switch ev.Rune() {
-			case 'q':
+			case rune(Q):
 				break CORE
+
+			case rune(U):
+				mooze.req.url = mooze.readLine()
+				layout[2].content[0] =
+					"url: " + mooze.req.url
+				mooze.renderLayout(layout)
+				mooze.ms.Show()
+
+			case rune(CTRLS):
+				res := mooze.req.Send()
+				defer res.Body.Close()
+				rData := mooze.req.Body(res)
+				layout[1].Content([]string{string(rData)})
+				mooze.renderLayout(layout)
+				mooze.ms.Show()
 			}
 		}
 	}

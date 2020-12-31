@@ -27,6 +27,7 @@ type MoozeWindow struct {
 	sizeY    int
 	hasTitle bool
 	title    string
+	content  []string
 }
 
 func NewMoozeWindow(x, y, sizeX, sizeY int, t bool) *MoozeWindow {
@@ -42,6 +43,10 @@ func NewMoozeWindow(x, y, sizeX, sizeY int, t bool) *MoozeWindow {
 func (w *MoozeWindow) Title(t string) {
 	w.hasTitle = true
 	w.title = t
+}
+
+func (w *MoozeWindow) Content(c []string) {
+	w.content = append(w.content, c...)
 }
 
 func (m *MoozeScreen) InitScreen(mouse bool) {
@@ -100,6 +105,12 @@ func (m *MoozeScreen) RenderWindow(w *MoozeWindow, style tcell.Style) {
 	for row := w.x + 1; row < w.x+w.sizeX-1; row++ {
 		for col := w.y + 1; col < w.y+w.sizeY-1; col++ {
 			m.s.SetContent(col, row, ' ', nil, style)
+		}
+	}
+
+	if len(w.content) < w.sizeX {
+		for i, v := range w.content {
+			m.Print(w.x+i+1, w.y+1, v, style)
 		}
 	}
 	if w.hasTitle && len(w.title) < w.sizeY {

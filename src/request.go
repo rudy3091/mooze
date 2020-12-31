@@ -25,18 +25,31 @@ func methodTypeToString(m methodtype) string {
 	}[m]
 }
 
-type Request struct {
+type MoozeRequest struct {
 	url    string
 	method methodtype
 	header string // temp
 	body   string // temp
 }
 
-func NewRequest(url string, method methodtype, header, body string) *Request {
-	return &Request{url, method, header, body}
+func NewMoozeRequest() *MoozeRequest {
+	return &MoozeRequest{
+		url:    "",
+		method: GET,
+		header: "",
+		body:   "",
+	}
 }
 
-func (r *Request) Send() *http.Response {
+func (r *MoozeRequest) Url(u string) {
+	r.url = u
+}
+
+func (r *MoozeRequest) Method(m int) {
+	r.method = methodtype(m)
+}
+
+func (r *MoozeRequest) Send() *http.Response {
 	res, err := http.Get(r.url)
 	if err != nil {
 		panic(err)
@@ -45,7 +58,7 @@ func (r *Request) Send() *http.Response {
 	return res
 }
 
-func (r *Request) Body(res *http.Response) []byte {
+func (r *MoozeRequest) Body(res *http.Response) []byte {
 	b, _ := ioutil.ReadAll(res.Body)
 	return b
 }
