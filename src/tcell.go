@@ -40,13 +40,20 @@ func NewMoozeWindow(x, y, sizeX, sizeY int, t bool) *MoozeWindow {
 	}
 }
 
-func (w *MoozeWindow) Title(t string) {
+func (w *MoozeWindow) Title(t string) *MoozeWindow {
 	w.hasTitle = true
 	w.title = t
+	return w
 }
 
-func (w *MoozeWindow) Content(c []string) {
+func (w *MoozeWindow) Content(c []string) *MoozeWindow {
+	w.content = c
+	return w
+}
+
+func (w *MoozeWindow) ContentAppend(c []string) *MoozeWindow {
 	w.content = append(w.content, c...)
+	return w
 }
 
 func (m *MoozeScreen) InitScreen(mouse bool) {
