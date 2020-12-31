@@ -76,6 +76,7 @@ func (r *MoozeRequest) Prettify(data []byte) []string {
 	for {
 		b, err := rd.ReadByte()
 		if err == io.EOF {
+			str = append(str, buf)
 			break
 		}
 		buf += string(b)
