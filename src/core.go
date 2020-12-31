@@ -58,6 +58,11 @@ func InitTerminal() *terminal.Terminal {
 	return term
 }
 
+func initLayout(w, h int) []*MoozeWindow {
+	window := []*MoozeWindow{}
+	return window
+}
+
 func Run() {
 	// applications state
 	mooze := NewMooze()
@@ -84,7 +89,7 @@ CORE:
 			width  int
 			height int
 		}{w - 1, 6}
-		window := NewMoozeWindow(h-status.height-1, 1, status.height, status.width-1, false)
+		window := NewMoozeWindow(h-status.height, 1, status.height, status.width, false)
 		window.Title("hi")
 		if !wflag {
 			mooze.ms.RenderWindow(
