@@ -1,3 +1,5 @@
+// TODO: fix http response rune-width
+
 package mooze
 
 import (
@@ -106,26 +108,15 @@ func Run() {
 	// applications state
 	mooze := NewMooze()
 	mooze.ms.InitScreen(false)
+	defer mooze.ms.Exit(1)
 
-	// // input mode state
-	// f := NewFlags()
-
-	// r := NewRenderer()
-	// h := NewHistoryWriter()
-	// req := NewRequest("", GET, "", "")
-
-	// defer r.ClearConsoleUnix()
-
-	// r.ClearConsoleUnix()
-
-	// msg := ""
-	// wflag := false
 	w, h := mooze.ms.Size()
 	layout := mooze.initLayout(w, h)
 
 CORE:
 	for {
 		mooze.renderLayout(layout)
+		mooze.ms.StatusCode(layout[1], mooze.req.resStatus)
 		mooze.ms.Show()
 
 		ev := mooze.ms.EmitEvent()
@@ -153,6 +144,7 @@ CORE:
 				rData := mooze.req.Body(res)
 				layout[1].Content(mooze.req.Prettify(rData))
 				mooze.renderLayout(layout)
+				mooze.req.resStatus = res.Status
 				mooze.ms.Show()
 			}
 		}

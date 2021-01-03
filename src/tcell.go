@@ -119,9 +119,29 @@ func (m *MoozeScreen) RenderWindow(w *MoozeWindow, style tcell.Style) {
 		for i, v := range w.content {
 			m.Print(w.x+i+1, w.y+1, v, style)
 		}
+	} else {
+		for i, v := range w.content[0 : w.sizeX-2] {
+			m.Print(w.x+i+1, w.y+1, v, style)
+		}
+		m.Print(w.x+w.sizeX-2, w.y+1, "...", style)
 	}
 	if w.hasTitle && len(w.title) < w.sizeY {
 		m.Print(w.x, w.y+1, w.title, style)
+	}
+}
+
+func (m *MoozeScreen) StatusCode(w *MoozeWindow, c string) {
+	_y := w.y + w.sizeY - (len(c) + 2)
+	for _, char := range c {
+		wd := runeWidth(char)
+		var comb []rune
+		if wd == 0 {
+			comb = []rune{char}
+			char = ' '
+			wd = 1
+		}
+		m.s.SetContent(_y, w.x+1, char, comb, ToStyle("white", "green"))
+		_y += wd
 	}
 }
 

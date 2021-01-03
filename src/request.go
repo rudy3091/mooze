@@ -1,3 +1,5 @@
+// TODO: single json object will be parsed,
+//       but not array of json objects. fix this
 package mooze
 
 import (
@@ -33,14 +35,19 @@ type MoozeRequest struct {
 	method methodtype
 	header string // temp
 	body   string // temp
+
+	resStatus string
+	resCode   int
 }
 
 func NewMoozeRequest() *MoozeRequest {
 	return &MoozeRequest{
-		url:    "",
-		method: GET,
-		header: "",
-		body:   "",
+		url:       "",
+		method:    GET,
+		header:    "",
+		body:      "",
+		resStatus: "",
+		resCode:   -1,
 	}
 }
 
