@@ -130,21 +130,6 @@ func (m *MoozeScreen) RenderWindow(w *MoozeWindow, style tcell.Style) {
 	}
 }
 
-func (m *MoozeScreen) StatusCode(w *MoozeWindow, c string) {
-	_y := w.y + w.sizeY - (len(c) + 2)
-	for _, char := range c {
-		wd := runeWidth(char)
-		var comb []rune
-		if wd == 0 {
-			comb = []rune{char}
-			char = ' '
-			wd = 1
-		}
-		m.s.SetContent(_y, w.x+1, char, comb, ToStyle("white", "green"))
-		_y += wd
-	}
-}
-
 func (m *MoozeScreen) Clear() {
 	m.s.Clear()
 }

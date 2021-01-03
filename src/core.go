@@ -90,6 +90,23 @@ func (m *mooze) renderLayout(w []*MoozeWindow) {
 	}
 }
 
+func (m *mooze) statusCode(w *MoozeWindow) {
+	style := ToStyle("white")
+	switch m.req.resCode / 100 {
+	case 2:
+		style = ToStyle("white", "green")
+	case 3:
+		style = ToStyle("white", "yellow")
+	case 4:
+		style = ToStyle("white", "red")
+	case 5:
+		style = ToStyle("white", "crimson")
+	}
+
+	_y := w.y + w.sizeY - (len(m.req.resStatus) + 2)
+	m.ms.Print(w.x+1, _y, m.req.resStatus, style)
+}
+
 func (m *mooze) readLine() string {
 	m.ms.r.ShowCursor()
 	m.ms.r.MoveCursorTo(1, 1)
@@ -116,7 +133,7 @@ func Run() {
 CORE:
 	for {
 		mooze.renderLayout(layout)
-		mooze.ms.StatusCode(layout[1], mooze.req.resStatus)
+		mooze.statusCode(layout[1])
 		mooze.ms.Show()
 
 		ev := mooze.ms.EmitEvent()
@@ -145,6 +162,7 @@ CORE:
 				layout[1].Content(mooze.req.Prettify(rData))
 				mooze.renderLayout(layout)
 				mooze.req.resStatus = res.Status
+				mooze.req.resCode = res.StatusCode
 				mooze.ms.Show()
 			}
 		}
