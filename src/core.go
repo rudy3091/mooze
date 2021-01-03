@@ -157,6 +157,7 @@ CORE:
 
 			case rune(CTRLS):
 				end := make(chan bool)
+				defer close(end)
 				var res Response
 
 				go func() {
