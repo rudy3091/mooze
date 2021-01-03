@@ -10,6 +10,8 @@ import (
 	"net/http"
 )
 
+type Response *http.Response
+
 type methodtype int
 
 const (

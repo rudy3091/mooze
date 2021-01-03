@@ -156,10 +156,19 @@ CORE:
 				mooze.ms.Show()
 
 			case rune(CTRLS):
-				res := mooze.req.Send()
+				end := make(chan bool)
+				var res Response
+
+				go func() {
+					res = mooze.req.Send()
+					end <- true
+				}()
+				<-end
+
 				defer res.Body.Close()
 				rData := mooze.req.Body(res)
 				layout[1].Content(mooze.req.Prettify(rData))
+
 				mooze.renderLayout(layout)
 				mooze.req.resStatus = res.Status
 				mooze.req.resCode = res.StatusCode
