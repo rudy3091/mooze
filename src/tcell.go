@@ -94,6 +94,26 @@ func (m *MoozeScreen) Print(y, x int, str string, style tcell.Style) {
 	}
 }
 
+// if string length is bigger than window width, replace tail as '..'
+func (m *MoozeScreen) PrintInsideWindow(mw *MoozeWindow, y, x int, str string, style tcell.Style) {
+	for _, c := range str {
+		w := runeWidth(c)
+		var comb []rune
+		if w == 0 {
+			comb = []rune{c}
+			c = ' '
+			w = 1
+		}
+		if x >= mw.y+mw.sizeY-3 {
+			m.s.SetContent(x, y, '.', []rune{}, style)
+			m.s.SetContent(x+1, y, '.', []rune{}, style)
+			break
+		}
+		m.s.SetContent(x, y, c, comb, style)
+		x += w
+	}
+}
+
 func (m *MoozeScreen) RenderWindow(w *MoozeWindow, style tcell.Style) {
 	for col := w.y; col < w.y+w.sizeY-1; col++ {
 		m.s.SetContent(col, w.x, tcell.RuneHLine, nil, style)
@@ -117,7 +137,7 @@ func (m *MoozeScreen) RenderWindow(w *MoozeWindow, style tcell.Style) {
 
 	if len(w.content) < w.sizeX {
 		for i, v := range w.content {
-			m.Print(w.x+i+1, w.y+1, v, style)
+			m.PrintInsideWindow(w, w.x+i+1, w.y+1, v, style)
 		}
 	} else {
 		for i, v := range w.content[0 : w.sizeX-2] {
