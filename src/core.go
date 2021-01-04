@@ -51,7 +51,7 @@ func initTerminal() *terminal.Terminal {
 	return term
 }
 
-func (m *mooze) initLayout(w, h int) (*MoozeWindow, *MoozeWindow, *MoozeWindow) {
+func (m *mooze) getHorizontalLayout(w, h int) (*MoozeWindow, *MoozeWindow, *MoozeWindow) {
 	urlHeight := 1
 	statusHeight := 7
 	rHeight := h - (urlHeight + statusHeight)
@@ -78,6 +78,40 @@ func (m *mooze) initLayout(w, h int) (*MoozeWindow, *MoozeWindow, *MoozeWindow) 
 	})
 
 	return w1, w2, w3
+}
+
+func (m *mooze) getVerticalLayout(w, h int) (*MoozeWindow, *MoozeWindow, *MoozeWindow) {
+	urlHeight := 1
+	statusHeight := 7
+
+	rh := (h - (urlHeight + statusHeight)) / 2
+	if h%2 == 1 {
+		rh = rh - 1
+	}
+
+	w1 := NewMoozeWindow(urlHeight, 0, rh, w, false)
+	w1.Title("req")
+	w1.Content([]string{"request body"})
+
+	w2 := NewMoozeWindow(rh+1, 0, rh, w, false)
+	w2.Title("res")
+
+	w3 := NewMoozeWindow(h-statusHeight, 0, statusHeight, w, false)
+	w3.Title("status")
+	w3.Content([]string{
+		"url: " + m.req.url,
+		"method: " + methodTypeToString(m.req.method),
+	})
+
+	return w1, w2, w3
+}
+
+func (m *mooze) initLayout(w, h int) (*MoozeWindow, *MoozeWindow, *MoozeWindow) {
+	if w > 100 {
+		return m.getHorizontalLayout(w, h)
+	} else {
+		return m.getVerticalLayout(w, h)
+	}
 }
 
 func (m *mooze) renderLayout(w ...*MoozeWindow) {
