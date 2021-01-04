@@ -81,15 +81,13 @@ func (m *MoozeScreen) Size() (int, int) {
 }
 
 func (m *MoozeScreen) Print(y, x int, str string, style tcell.Style) {
-	for _, c := range str {
+	for _, c := range []rune(str) {
 		w := runeWidth(c)
-		var comb []rune
 		if w == 0 {
-			comb = []rune{c}
 			c = ' '
 			w = 1
 		}
-		m.s.SetContent(x, y, c, comb, style)
+		m.s.SetContent(x, y, c, nil, style)
 		x += w
 	}
 }
@@ -99,11 +97,9 @@ func (m *MoozeScreen) Print(y, x int, str string, style tcell.Style) {
 func (m *MoozeScreen) PrintInsideWindow(
 	mw *MoozeWindow, y, x int, str string, style tcell.Style,
 ) {
-	for _, c := range str {
+	for _, c := range []rune(str) {
 		w := runeWidth(c)
-		var comb []rune
 		if w == 0 {
-			comb = []rune{c}
 			c = ' '
 			w = 1
 		}
@@ -112,7 +108,7 @@ func (m *MoozeScreen) PrintInsideWindow(
 			m.s.SetContent(x+1, y, '.', []rune{}, style)
 			break
 		}
-		m.s.SetContent(x, y, c, comb, style)
+		m.s.SetContent(x, y, c, nil, style)
 		x += w
 	}
 }

@@ -3,6 +3,7 @@
 package mooze
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"io"
@@ -79,16 +80,17 @@ func (r *MoozeRequest) Body(res *http.Response) []byte {
 func (r *MoozeRequest) Prettify(data []byte) []string {
 	j := &bytes.Buffer{}
 	err := json.Indent(j, data, "", "  ")
+	// response is not a valid json
 	if err != nil {
-		// response is not a valid json
 		return []string{string(data)}
 	}
 
 	str := []string{}
 	buf := ""
-	rd := bytes.NewReader(j.Bytes())
+	brd := bytes.NewReader(j.Bytes())
+	rrd := bufio.NewReader(brd)
 	for {
-		b, err := rd.ReadByte()
+		b, _, err := rrd.ReadRune()
 		if err == io.EOF {
 			str = append(str, buf)
 			break
