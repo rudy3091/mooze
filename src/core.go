@@ -47,7 +47,7 @@ func initTerminal() *terminal.Terminal {
 			io.Writer
 		}{os.Stdin, os.Stdout}, "",
 	)
-	term.SetPrompt(NewColorContext("ff5555").Colorize("> "))
+	term.SetPrompt("\x1B[0m\x1B[31m> \x1B[0m")
 	return term
 }
 
@@ -94,13 +94,13 @@ func (m *mooze) statusCode(w *MoozeWindow) {
 	style := ToStyle("white")
 	switch m.req.resCode / 100 {
 	case 2:
-		style = ToStyle("white", "green")
+		style = ToStyle("black", "green")
 	case 3:
-		style = ToStyle("white", "yellow")
+		style = ToStyle("black", "yellow")
 	case 4:
-		style = ToStyle("white", "red")
+		style = ToStyle("black", "red")
 	case 5:
-		style = ToStyle("white", "crimson")
+		style = ToStyle("black", "crimson")
 	}
 
 	_y := w.y + w.sizeY - (len(m.req.resStatus) + 2)
@@ -110,7 +110,6 @@ func (m *mooze) statusCode(w *MoozeWindow) {
 func (m *mooze) readLine() string {
 	m.ms.r.ShowCursor()
 	m.ms.r.MoveCursorTo(1, 1)
-	m.ms.r.ClearLine()
 	l, err := m.term.ReadLine()
 	if err != nil {
 		panic(err)
