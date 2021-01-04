@@ -77,7 +77,11 @@ func (r *MoozeRequest) Body(res *http.Response) []byte {
 
 func (r *MoozeRequest) Prettify(data []byte) []string {
 	j := &bytes.Buffer{}
-	json.Indent(j, data, "", "  ")
+	err := json.Indent(j, data, "", "  ")
+	if err != nil {
+		// response is not a valid json
+		return []string{string(data)}
+	}
 
 	str := []string{}
 	buf := ""
