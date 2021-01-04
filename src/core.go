@@ -127,10 +127,7 @@ func Run() {
 
 CORE:
 	for {
-		// mooze.renderLayout(wReq, wRes, wStatus)
-		mooze.ms.RenderWindow(wReq, ToStyle("blue"))
-		mooze.ms.RenderWindow(wRes, ToStyle("red"))
-		mooze.ms.RenderWindow(wStatus, ToStyle("green"))
+		mooze.renderLayout(wReq, wRes, wStatus)
 		mooze.statusCode(wRes)
 		mooze.ms.Show()
 
@@ -139,13 +136,17 @@ CORE:
 		case *tcell.EventResize:
 			w, h = mooze.ms.Size()
 			wReq, wRes, wStatus = mooze.initLayout(w, h)
+			mooze.renderLayout(wReq, wRes, wStatus)
 			wRes.Content(mooze.req.data)
 			mooze.ms.Reload()
+
 		case *tcell.EventKey:
 			switch ev.Rune() {
+			// exit application
 			case rune(Q):
 				break CORE
 
+			// url input
 			case rune(U):
 				mooze.req.url = mooze.readLine()
 				wStatus.content[0] =
@@ -153,11 +154,13 @@ CORE:
 				mooze.renderLayout(wReq, wRes, wStatus)
 				mooze.ms.Show()
 
+			// send Request
 			case rune(CTRLS):
 				// erase former response
 				wRes.Content([]string{})
 				mooze.ms.RenderWindow(wRes, ToStyle("red"))
 				mooze.ms.Show()
+
 				end := make(chan bool)
 				defer close(end)
 				var res Response
