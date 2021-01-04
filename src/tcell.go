@@ -94,8 +94,11 @@ func (m *MoozeScreen) Print(y, x int, str string, style tcell.Style) {
 	}
 }
 
-// if string length is bigger than window width, replace tail as '..'
-func (m *MoozeScreen) PrintInsideWindow(mw *MoozeWindow, y, x int, str string, style tcell.Style) {
+// if string length is bigger than window width
+// replace the tail as '..'
+func (m *MoozeScreen) PrintInsideWindow(
+	mw *MoozeWindow, y, x int, str string, style tcell.Style,
+) {
 	for _, c := range str {
 		w := runeWidth(c)
 		var comb []rune

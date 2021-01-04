@@ -40,6 +40,7 @@ type MoozeRequest struct {
 
 	resStatus string
 	resCode   int
+	data      []string
 }
 
 func NewMoozeRequest() *MoozeRequest {

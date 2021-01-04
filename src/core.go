@@ -51,8 +51,7 @@ func initTerminal() *terminal.Terminal {
 	return term
 }
 
-func (m *mooze) initLayout(w, h int) []*MoozeWindow {
-	window := []*MoozeWindow{}
+func (m *mooze) initLayout(w, h int) (*MoozeWindow, *MoozeWindow, *MoozeWindow) {
 	urlHeight := 1
 	statusHeight := 7
 	rHeight := h - (urlHeight + statusHeight)
@@ -67,11 +66,9 @@ func (m *mooze) initLayout(w, h int) []*MoozeWindow {
 	w1 := NewMoozeWindow(urlHeight, 0, rHeight, rw, false)
 	w1.Title("req")
 	w1.Content([]string{"request body"})
-	window = append(window, w1)
 
 	w2 := NewMoozeWindow(urlHeight, rw, rHeight, w-rw, false)
 	w2.Title("res")
-	window = append(window, w2)
 
 	w3 := NewMoozeWindow(h-statusHeight, 0, statusHeight, w, false)
 	w3.Title("status")
@@ -79,12 +76,11 @@ func (m *mooze) initLayout(w, h int) []*MoozeWindow {
 		"url: " + m.req.url,
 		"method: " + methodTypeToString(m.req.method),
 	})
-	window = append(window, w3)
 
-	return window
+	return w1, w2, w3
 }
 
-func (m *mooze) renderLayout(w []*MoozeWindow) {
+func (m *mooze) renderLayout(w ...*MoozeWindow) {
 	for _, window := range w {
 		m.ms.RenderWindow(window, ToStyle("white"))
 	}
@@ -127,20 +123,23 @@ func Run() {
 	defer mooze.ms.Exit(1)
 
 	w, h := mooze.ms.Size()
-	layout := mooze.initLayout(w, h)
+	wReq, wRes, wStatus := mooze.initLayout(w, h)
 
 CORE:
 	for {
-		mooze.renderLayout(layout)
-		mooze.statusCode(layout[1])
+		// mooze.renderLayout(wReq, wRes, wStatus)
+		mooze.ms.RenderWindow(wReq, ToStyle("blue"))
+		mooze.ms.RenderWindow(wRes, ToStyle("red"))
+		mooze.ms.RenderWindow(wStatus, ToStyle("green"))
+		mooze.statusCode(wRes)
 		mooze.ms.Show()
 
 		ev := mooze.ms.EmitEvent()
 		switch ev := ev.(type) {
 		case *tcell.EventResize:
 			w, h = mooze.ms.Size()
-			layout = mooze.initLayout(w, h)
-			mooze.renderLayout(layout)
+			wReq, wRes, wStatus = mooze.initLayout(w, h)
+			wRes.Content(mooze.req.data)
 			mooze.ms.Reload()
 		case *tcell.EventKey:
 			switch ev.Rune() {
@@ -149,12 +148,16 @@ CORE:
 
 			case rune(U):
 				mooze.req.url = mooze.readLine()
-				layout[2].content[0] =
+				wStatus.content[0] =
 					"url: " + mooze.req.url
-				mooze.renderLayout(layout)
+				mooze.renderLayout(wReq, wRes, wStatus)
 				mooze.ms.Show()
 
 			case rune(CTRLS):
+				// erase former response
+				wRes.Content([]string{})
+				mooze.ms.RenderWindow(wRes, ToStyle("red"))
+				mooze.ms.Show()
 				end := make(chan bool)
 				defer close(end)
 				var res Response
@@ -167,9 +170,10 @@ CORE:
 
 				defer res.Body.Close()
 				rData := mooze.req.Body(res)
-				layout[1].Content(mooze.req.Prettify(rData))
+				mooze.req.data = mooze.req.Prettify(rData)
+				wRes.Content(mooze.req.data)
 
-				mooze.renderLayout(layout)
+				mooze.renderLayout(wReq, wRes, wStatus)
 				mooze.req.resStatus = res.Status
 				mooze.req.resCode = res.StatusCode
 				mooze.ms.Show()
