@@ -134,11 +134,13 @@ CORE:
 		ev := mooze.ms.EmitEvent()
 		switch ev := ev.(type) {
 		case *tcell.EventResize:
+			mooze.ms.r.ClearConsoleUnix()
 			w, h = mooze.ms.Size()
 			wReq, wRes, wStatus = mooze.initLayout(w, h)
-			mooze.renderLayout(wReq, wRes, wStatus)
 			wRes.Content(mooze.req.data)
 			mooze.ms.Reload()
+			mooze.statusCode(wRes)
+			mooze.ms.Show()
 
 		case *tcell.EventKey:
 			switch ev.Rune() {
