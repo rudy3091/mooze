@@ -64,3 +64,22 @@ func TestBytesToRune(t *testing.T) {
 		t.Error()
 	}
 }
+
+func TestToInteger(t *testing.T) {
+	n := ToInteger("1")
+	if n != 1 {
+		t.Error()
+	}
+	n = ToInteger("3")
+	if n != 3 {
+		t.Error()
+	}
+	n = ToInteger("111")
+	if n != 111 {
+		t.Error()
+	}
+	n = ToInteger("11111111111111")
+	if n != 11111111111111 {
+		t.Error()
+	}
+}

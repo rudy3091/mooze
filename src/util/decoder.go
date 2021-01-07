@@ -1,6 +1,7 @@
 package util
 
 import (
+	"strconv"
 	"unicode/utf8"
 )
 
@@ -30,4 +31,12 @@ func BytesToRune(b []byte) rune {
 	} else {
 		panic("decoding failed")
 	}
+}
+
+func ToInteger(s string) int {
+	n, err := strconv.Atoi(s)
+	if err != nil {
+		panic(err)
+	}
+	return n
 }
