@@ -1,5 +1,3 @@
-// TODO: single json object will be parsed,
-//       but not array of json objects. fix this
 package mooze
 
 import (
@@ -36,8 +34,8 @@ func methodTypeToString(m methodtype) string {
 type MoozeRequest struct {
 	url    string
 	method methodtype
-	header string // temp
-	body   string // temp
+	header string        // temp
+	body   *bytes.Buffer // temp
 
 	resStatus string
 	resCode   int
@@ -49,7 +47,7 @@ func NewMoozeRequest() *MoozeRequest {
 		url:       "",
 		method:    GET,
 		header:    "",
-		body:      "",
+		body:      nil,
 		resStatus: "",
 		resCode:   -1,
 	}
@@ -63,13 +61,34 @@ func (r *MoozeRequest) Method(m int) {
 	r.method = methodtype(m)
 }
 
-func (r *MoozeRequest) Send() *http.Response {
-	res, err := http.Get(r.url)
-	if err != nil {
-		panic(err)
-	}
+type ReqArgs struct {
+	h   string
+	buf *bytes.Buffer
+}
 
-	return res
+func (r *MoozeRequest) Send(m string, args ReqArgs) *http.Response {
+	switch m {
+	case "GET":
+		res, err := http.Get(r.url)
+		if err != nil {
+			panic(err)
+		}
+		return res
+
+	case "POST":
+		res, err := http.Post(r.url, args.h, args.buf)
+		if err != nil {
+			panic(err)
+		}
+		return res
+
+	default:
+		res, err := http.Get(r.url)
+		if err != nil {
+			panic(err)
+		}
+		return res
+	}
 }
 
 func (r *MoozeRequest) Body(res *http.Response) []byte {
@@ -102,4 +121,14 @@ func (r *MoozeRequest) Prettify(data []byte) []string {
 		}
 	}
 	return str
+}
+
+func (r *MoozeRequest) ParseJson(s string) *bytes.Buffer {
+	b := []byte(s)
+	j := &bytes.Buffer{}
+	err := json.Indent(j, b, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	return j
 }

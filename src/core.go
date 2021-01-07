@@ -1,5 +1,3 @@
-// TODO: fix http response rune-width
-
 package mooze
 
 import (
@@ -7,6 +5,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/RudyPark3091/mooze/src/util"
 	"github.com/gdamore/tcell"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -184,11 +183,41 @@ CORE:
 
 			// url input
 			case rune(U):
-				mooze.req.url = mooze.readLine()
+				line := mooze.readLine()
+				if line != "" {
+					mooze.req.url = line
+				}
 				wStatus.content[0] =
 					"url: " + mooze.req.url
 				mooze.renderLayout(wReq, wRes, wStatus)
 				mooze.ms.Show()
+
+			// "select" request method (post, get ...)
+			case rune(M):
+				// do something
+				wMSelect := NewMoozeWindow(1, 1, 2+2, 15, false)
+				// 1: GET
+				// 2: POST
+				// 3: PUT
+				// 3: PATCH
+				// 3: DELETE
+				wMSelect.Content([]string{"1: GET", "2: POST"})
+				mooze.ms.RenderWindow(wMSelect, ToStyle("black", "red"))
+				mooze.ms.Show()
+				n := mooze.readLine()
+				ni := util.ToInteger(n) - 1
+				mooze.req.method = methodtype(ni)
+				wStatus.content[1] =
+					"method: " + methodTypeToString(mooze.req.method)
+				mooze.ms.Show()
+
+			case rune(B):
+				line := mooze.readLine()
+				if line != "" {
+					jsonData := mooze.req.ParseJson(line)
+					mooze.req.body = jsonData
+					wReq.content = mooze.req.Prettify([]byte(line))
+				}
 
 			// send Request
 			case rune(CTRLS):
@@ -202,7 +231,10 @@ CORE:
 				var res Response
 
 				go func() {
-					res = mooze.req.Send()
+					res = mooze.req.Send(methodTypeToString(mooze.req.method), ReqArgs{
+						h:   "application/json",
+						buf: mooze.req.body,
+					})
 					end <- true
 				}()
 				<-end
