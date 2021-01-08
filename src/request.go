@@ -34,8 +34,8 @@ func methodTypeToString(m methodtype) string {
 type MoozeRequest struct {
 	url    string
 	method methodtype
-	header string        // temp
-	body   *bytes.Buffer // temp
+	header string // temp
+	body   string // temp
 
 	resStatus string
 	resCode   int
@@ -47,7 +47,7 @@ func NewMoozeRequest() *MoozeRequest {
 		url:       "",
 		method:    GET,
 		header:    "",
-		body:      nil,
+		body:      "",
 		resStatus: "",
 		resCode:   -1,
 	}

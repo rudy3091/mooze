@@ -149,7 +149,6 @@ func (m *mooze) readLine() string {
 }
 
 func Run() {
-	// applications state
 	mooze := NewMooze()
 	mooze.ms.InitScreen(false)
 	defer mooze.ms.Exit(1)
@@ -217,11 +216,11 @@ CORE:
 			case rune(B):
 				mooze.term.SetPrompt(prompt + "body: ")
 				line := mooze.readLine()
-				if line != "" {
-					jsonData := mooze.req.ParseJson(line)
-					mooze.req.body = jsonData
-					wReq.content = mooze.req.Prettify([]byte(line))
+				if line == "" {
+					continue
 				}
+				mooze.req.body = line
+				wReq.Content(mooze.req.Prettify([]byte(line)))
 
 			// options
 			case rune(O):
@@ -239,6 +238,7 @@ CORE:
 				// window frame to blink red
 				// until server responds
 				mooze.ms.RenderWindow(wRes, ToStyle("red"))
+				jsonData := mooze.req.ParseJson(mooze.req.body)
 				mooze.ms.Show()
 
 				end := make(chan bool)
@@ -248,7 +248,7 @@ CORE:
 				go func() {
 					res = mooze.req.Send(mooze.req.method, ReqArgs{
 						h:   "application/json",
-						buf: mooze.req.body,
+						buf: jsonData,
 					})
 					end <- true
 				}()
