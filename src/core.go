@@ -25,7 +25,7 @@ type mooze struct {
 	term    *terminal.Terminal
 	ms      *MoozeScreen
 	req     *MoozeRequest
-	history string // will update to file
+	history string // will update
 	os      string
 }
 
@@ -64,7 +64,6 @@ func (m *mooze) getHorizontalLayout(w, h int) (*MoozeWindow, *MoozeWindow, *Mooz
 
 	w1 := NewMoozeWindow(urlHeight, 0, rHeight, rw, false)
 	w1.Title("req")
-	w1.Content([]string{"request body"})
 
 	w2 := NewMoozeWindow(urlHeight, rw, rHeight, w-rw, false)
 	w2.Title("res")
@@ -158,6 +157,8 @@ func Run() {
 	w, h := mooze.ms.Size()
 	wReq, wRes, wStatus := mooze.initLayout(w, h)
 
+	prompt := "\x1B[0m\x1B[31m> \x1B[0m"
+
 CORE:
 	for {
 		mooze.renderLayout(wReq, wRes, wStatus)
@@ -170,7 +171,7 @@ CORE:
 			mooze.ms.r.ClearConsoleUnix()
 			w, h = mooze.ms.Size()
 			wReq, wRes, wStatus = mooze.initLayout(w, h)
-			wRes.Content(mooze.req.data)
+			wRes.Content(mooze.req.resData)
 			mooze.ms.Reload()
 			mooze.statusCode(wRes)
 			mooze.ms.Show()
@@ -183,6 +184,7 @@ CORE:
 
 			// url input
 			case rune(U):
+				mooze.term.SetPrompt(prompt + "url: ")
 				line := mooze.readLine()
 				if line != "" {
 					mooze.req.url = line
@@ -194,14 +196,14 @@ CORE:
 
 			// "select" request method (post, get ...)
 			case rune(M):
-				// do something
-				wMSelect := NewMoozeWindow(1, 1, 2+2, 15, false)
+				mooze.term.SetPrompt(prompt)
+				wMSelect := NewMoozeWindow(1, 1, 2+3, 15, false)
 				// 1: GET
 				// 2: POST
 				// 3: PUT
-				// 3: PATCH
-				// 3: DELETE
-				wMSelect.Content([]string{"1: GET", "2: POST"})
+				// 4: PATCH
+				// 5: DELETE
+				wMSelect.Content([]string{"method", "1: GET", "2: POST"})
 				mooze.ms.RenderWindow(wMSelect, ToStyle("black", "red"))
 				mooze.ms.Show()
 				n := mooze.readLine()
@@ -211,7 +213,9 @@ CORE:
 					"method: " + methodTypeToString(mooze.req.method)
 				mooze.ms.Show()
 
+			// body
 			case rune(B):
+				mooze.term.SetPrompt(prompt + "body: ")
 				line := mooze.readLine()
 				if line != "" {
 					jsonData := mooze.req.ParseJson(line)
@@ -219,10 +223,21 @@ CORE:
 					wReq.content = mooze.req.Prettify([]byte(line))
 				}
 
+			// options
+			case rune(O):
+				wOption := NewMoozeWindow(h/2-10, w/2-20, 20, 40, false)
+				wOption.Content([]string{"options"})
+				mooze.ms.RenderWindow(wOption, ToStyle("white", "blue"))
+				mooze.ms.Show()
+				mooze.readLine()
+
 			// send Request
 			case rune(CTRLS):
+				mooze.term.SetPrompt(prompt)
 				// erase former response
 				wRes.Content([]string{})
+				// window frame to blink red
+				// until server responds
 				mooze.ms.RenderWindow(wRes, ToStyle("red"))
 				mooze.ms.Show()
 
@@ -231,7 +246,7 @@ CORE:
 				var res Response
 
 				go func() {
-					res = mooze.req.Send(methodTypeToString(mooze.req.method), ReqArgs{
+					res = mooze.req.Send(mooze.req.method, ReqArgs{
 						h:   "application/json",
 						buf: mooze.req.body,
 					})
@@ -240,9 +255,9 @@ CORE:
 				<-end
 
 				defer res.Body.Close()
-				rData := mooze.req.Body(res)
-				mooze.req.data = mooze.req.Prettify(rData)
-				wRes.Content(mooze.req.data)
+				rData := mooze.req.ResBody(res)
+				mooze.req.resData = mooze.req.Prettify(rData)
+				wRes.Content(mooze.req.resData)
 
 				mooze.renderLayout(wReq, wRes, wStatus)
 				mooze.req.resStatus = res.Status

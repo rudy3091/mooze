@@ -31,6 +31,7 @@ const (
 	H input = 104
 	I input = 105
 	M input = 109
+	O input = 111
 	Q input = 113
 	R input = 114
 	U input = 117

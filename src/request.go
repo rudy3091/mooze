@@ -39,7 +39,7 @@ type MoozeRequest struct {
 
 	resStatus string
 	resCode   int
-	data      []string
+	resData   []string
 }
 
 func NewMoozeRequest() *MoozeRequest {
@@ -66,16 +66,18 @@ type ReqArgs struct {
 	buf *bytes.Buffer
 }
 
-func (r *MoozeRequest) Send(m string, args ReqArgs) *http.Response {
+func (r *MoozeRequest) Send(m methodtype, args ReqArgs) *http.Response {
 	switch m {
-	case "GET":
+	// GET
+	case 0:
 		res, err := http.Get(r.url)
 		if err != nil {
 			panic(err)
 		}
 		return res
 
-	case "POST":
+	// POST
+	case 1:
 		res, err := http.Post(r.url, args.h, args.buf)
 		if err != nil {
 			panic(err)
@@ -91,7 +93,7 @@ func (r *MoozeRequest) Send(m string, args ReqArgs) *http.Response {
 	}
 }
 
-func (r *MoozeRequest) Body(res *http.Response) []byte {
+func (r *MoozeRequest) ResBody(res *http.Response) []byte {
 	b, _ := ioutil.ReadAll(res.Body)
 	return b
 }
@@ -127,8 +129,9 @@ func (r *MoozeRequest) ParseJson(s string) *bytes.Buffer {
 	b := []byte(s)
 	j := &bytes.Buffer{}
 	err := json.Indent(j, b, "", "  ")
+	// not valid json
 	if err != nil {
-		panic(err)
+		return bytes.NewBufferString(s)
 	}
 	return j
 }
