@@ -89,7 +89,6 @@ func (m *mooze) getVerticalLayout(w, h int) (*MoozeWindow, *MoozeWindow, *MoozeW
 
 	w1 := NewMoozeWindow(urlHeight, 0, rh, w, false)
 	w1.Title("req")
-	w1.Content([]string{"request body"})
 
 	w2 := NewMoozeWindow(rh+1, 0, rh, w, false)
 	w2.Title("res")
