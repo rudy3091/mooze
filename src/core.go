@@ -53,7 +53,7 @@ func initTerminal() *terminal.Terminal {
 }
 
 func (m *mooze) getHorizontalLayout(w, h int) (*MoozeWindow, *MoozeWindow, *MoozeWindow) {
-	urlHeight := 1
+	urlHeight := 0
 	statusHeight := 7
 	rHeight := h - (urlHeight + statusHeight)
 
@@ -81,7 +81,7 @@ func (m *mooze) getHorizontalLayout(w, h int) (*MoozeWindow, *MoozeWindow, *Mooz
 }
 
 func (m *mooze) getVerticalLayout(w, h int) (*MoozeWindow, *MoozeWindow, *MoozeWindow) {
-	urlHeight := 1
+	urlHeight := 0
 	statusHeight := 7
 
 	rh := (h - (urlHeight + statusHeight)) / 2
@@ -144,8 +144,6 @@ func (m *mooze) readLine(x, y int) string {
 		panic(err)
 	}
 	m.ms.r.HideCursor()
-	m.ms.r.MoveCursorTo(1, 1)
-	m.ms.r.ClearLine()
 	return l
 }
 
@@ -184,10 +182,10 @@ CORE:
 
 			// url input
 			case rune(U):
-				mooze.term.SetPrompt(prompt)
+				mooze.term.SetPrompt("\x1B[0m\x1B[42m\x1B[30m> ")
 				wUrl := NewMoozeWindow(h/2-3, w/2-w/6, 3, w/3, false)
 				wUrl.Title("type target url")
-				mooze.ms.RenderWindow(wUrl, ToStyle("white"))
+				mooze.ms.RenderWindow(wUrl, ToStyle("black", "green"))
 				mooze.ms.Show()
 				line := mooze.readLine(h/2-1, w/2-w/6+2)
 				if line != "" {
@@ -200,32 +198,50 @@ CORE:
 
 			// "select" request method (post, get ...)
 			case rune(M):
-				mooze.term.SetPrompt(prompt)
-				wMSelect := NewMoozeWindow(1, 1, 2+3, 15, false)
+				mooze.term.SetPrompt("\x1B[0m\x1B[42m\x1B[30m> ")
+				wMSelect := NewMoozeWindow(h/2-5, w/2-10, 2+3, 20, false)
 				// 1: GET
 				// 2: POST
 				// 3: PUT
 				// 4: PATCH
 				// 5: DELETE
-				wMSelect.Content([]string{"method", "1: GET", "2: POST"})
-				mooze.ms.RenderWindow(wMSelect, ToStyle("black", "red"))
+				wMSelect.Title("type method")
+				wMSelect.Content([]string{"", "1: GET", "2: POST"})
+				mooze.ms.RenderWindow(wMSelect, ToStyle("black", "green"))
 				mooze.ms.Show()
-				n := mooze.readLine(1, 1)
+				n := mooze.readLine(h/2-3, w/2-10+2)
+				if n == "" {
+					n = "1"
+				}
 				ni := util.ToInteger(n) - 1
 				mooze.req.method = methodtype(ni)
 				wStatus.content[1] =
 					"method: " + methodTypeToString(mooze.req.method)
-				mooze.ms.Show()
+				mooze.ms.Reload()
 
 			// body
 			case rune(B):
-				mooze.term.SetPrompt(prompt + "body: ")
-				line := mooze.readLine(1, 1)
-				if line == "" {
-					continue
+				mooze.term.SetPrompt("\x1B[0m\x1B[42m\x1B[30m> ")
+				x := 7
+				y := 7
+				wBodyInput := NewMoozeWindow(5, 5, h-10, w-10, false)
+				wBodyInput.Title("type request body")
+				mooze.ms.RenderWindow(wBodyInput, ToStyle("black", "green"))
+				mooze.ms.Show()
+				x = 7
+				y = 7
+				bodyBuf := ""
+				for {
+					line := mooze.readLine(x, y)
+					if line == "" {
+						break
+					}
+					bodyBuf += line
+					x += 1
 				}
-				mooze.req.body = line
-				wReq.Content(mooze.req.Prettify([]byte(line)))
+				mooze.req.body = bodyBuf
+				wReq.Content(mooze.req.Prettify([]byte(bodyBuf)))
+				mooze.ms.Reload()
 
 			// options
 			case rune(O):
