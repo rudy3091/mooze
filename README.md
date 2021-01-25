@@ -5,8 +5,10 @@ A command-line REST api test tool
 - Responsive terminal UI
 - Http request - GET, POST  
   
+![0-0-1-image](./asset/image/0-0-1.gif)
+  
 ## Install
-mooze requires go to be installed
+mooze requires go to be installed  
 only supports UNIX system for now  
 ```
 $ git clone https://github.com/RudyPark3091/mooze.git ~/.mooze
