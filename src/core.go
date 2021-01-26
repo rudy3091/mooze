@@ -169,6 +169,7 @@ CORE:
 			mooze.ms.r.ClearConsoleUnix()
 			w, h = mooze.ms.Size()
 			wReq, wRes, wStatus = mooze.initLayout(w, h)
+			wReq.Content(mooze.req.Prettify([]byte(mooze.req.body)))
 			wRes.Content(mooze.req.resData)
 			mooze.ms.Reload()
 			mooze.statusCode(wRes)
