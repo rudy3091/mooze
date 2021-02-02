@@ -26,6 +26,7 @@ type mooze struct {
 	term    *terminal.Terminal
 	ms      *MoozeScreen
 	req     *MoozeRequest
+	editor  *MoozeEditor
 	history string // will update
 	os      string
 	mode    *flags
@@ -36,6 +37,7 @@ func NewMooze() *mooze {
 		term:    initTerminal(),
 		ms:      NewMoozeScreen(),
 		req:     NewMoozeRequest(),
+		editor:  NewMoozeEditor(),
 		history: "",
 		os:      runtime.GOOS,
 	}
@@ -171,9 +173,8 @@ CORE:
 			wReq, wRes, wStatus = mooze.initLayout(w, h)
 			wReq.Content(mooze.req.Prettify([]byte(mooze.req.body)))
 			wRes.Content(mooze.req.resData)
-			mooze.ms.Reload()
 			mooze.statusCode(wRes)
-			mooze.ms.Show()
+			mooze.ms.Reload()
 
 		case *tcell.EventKey:
 			switch ev.Rune() {
@@ -223,25 +224,26 @@ CORE:
 			// body
 			case rune(B):
 				mooze.term.SetPrompt("\x1B[0m\x1B[42m\x1B[30m> ")
-				x := 7
-				y := 7
-				wBodyInput := NewMoozeWindow(5, 5, h-10, w-10, false)
-				wBodyInput.Title("type request body")
-				mooze.ms.RenderWindow(wBodyInput, ToStyle("black", "green"))
-				mooze.ms.Show()
-				x = 7
-				y = 7
-				bodyBuf := ""
-				for {
-					line := mooze.readLine(x, y)
-					if line == "" {
-						break
-					}
-					bodyBuf += line
-					x += 1
-				}
-				mooze.req.body = bodyBuf
-				wReq.Content(mooze.req.Prettify([]byte(bodyBuf)))
+				mooze.editor.readLine(mooze)
+				// x := 7
+				// y := 7
+				// wBodyInput := NewMoozeWindow(5, 5, h-10, w-10, false)
+				// wBodyInput.Title("type request body")
+				// mooze.ms.RenderWindow(wBodyInput, ToStyle("black", "green"))
+				// mooze.ms.Show()
+				// x = 7
+				// y = 7
+				// bodyBuf := ""
+				// for {
+				// 	line := mooze.readLine(x, y)
+				// 	if line == "" {
+				// 		break
+				// 	}
+				// 	bodyBuf += line
+				// 	x += 1
+				// }
+				// mooze.req.body = bodyBuf
+				// wReq.Content(mooze.req.Prettify([]byte(bodyBuf)))
 				mooze.ms.Reload()
 
 			// options
