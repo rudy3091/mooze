@@ -224,7 +224,8 @@ CORE:
 			// body
 			case rune(B):
 				mooze.term.SetPrompt("\x1B[0m\x1B[42m\x1B[30m> ")
-				mooze.editor.readLine(mooze)
+				mooze.req.body = mooze.editor.readLine(mooze)
+				wReq.Content(mooze.req.Prettify([]byte(mooze.req.body)))
 				// x := 7
 				// y := 7
 				// wBodyInput := NewMoozeWindow(5, 5, h-10, w-10, false)
