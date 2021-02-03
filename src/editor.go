@@ -19,7 +19,8 @@ func (e *MoozeEditor) readLine(m *mooze) string {
 	width, height := m.ms.Size()
 	w := NewMoozeWindow(5, 5, height-10, width-10, false)
 
-	w.Content([]string{"Ctrl + Enter to finish editor"})
+	w.Content([]string{"Ctrl + Enter to finish editor",
+		"(fn + Enter on macOS)"})
 	m.ms.RenderWindow(w, ToStyle("black", "green"))
 	m.ms.Show()
 	w.Content([]string{})
@@ -56,6 +57,17 @@ func (e *MoozeEditor) readLine(m *mooze) string {
 				e.CursorX += 1
 				e.CursorY = 5
 				m.ms.RenderWindow(w, ToStyle("black", "green"))
+				m.ms.Show()
+
+			case 127:
+				if len(buf) > 0 {
+					e.Content = e.Content[0 : len(e.Content)-1]
+					buf = buf[0 : len(buf)-1]
+					m.ms.PrintInsideWindow(
+						w, e.CursorX, e.CursorY, " ", ToStyle("black", "green"),
+					)
+					e.CursorY -= 1
+				}
 				m.ms.Show()
 
 			default:
