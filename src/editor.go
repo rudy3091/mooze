@@ -8,14 +8,23 @@ type MoozeEditor struct {
 	CursorX int
 	CursorY int
 
+	WindowX int
+	WindowY int
+
 	Content string
 }
 
 func NewMoozeEditor() *MoozeEditor {
-	return &MoozeEditor{0, 0, ""}
+	return &MoozeEditor{
+		CursorX: 0,
+		CursorY: 0,
+		WindowX: 0,
+		WindowY: 0,
+		Content: "",
+	}
 }
 
-func (e *MoozeEditor) readLine(m *mooze) string {
+func (e *MoozeEditor) read(m *mooze) string {
 	style := ToStyle("black", "green")
 	width, height := m.ms.Size()
 	w := NewMoozeWindow(5, 5, height-10, width-10, false)
