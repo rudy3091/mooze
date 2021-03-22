@@ -23,6 +23,10 @@ func (s *Screen) Println(v ...interface{}) {
 	fmt.Println(v...)
 }
 
-func (s *Screen) ReadNumber(n *int) {
-	fmt.Scanf("%d", n)
+func (s *Screen) Print(v ...interface{}) {
+	fmt.Print(v...)
+}
+
+func (s *Screen) ClearLine() {
+	fmt.Print("\033[2K")
 }
