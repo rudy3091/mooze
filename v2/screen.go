@@ -4,10 +4,21 @@ import (
 	"fmt"
 )
 
-func LoadAlternateScreen() {
+type Screen struct {
+}
+
+func NewScreen() *Screen {
+	return &Screen{}
+}
+
+func (s Screen) LoadAlternateScreen() {
 	fmt.Println("\033[?1049h\033[H")
 }
 
-func UnloadAlternateScreen() {
+func (s Screen) UnloadAlternateScreen() {
 	fmt.Println("\033[?1049l")
+}
+
+func (s Screen) Println(v ...interface{}) {
+	fmt.Println(v...)
 }
