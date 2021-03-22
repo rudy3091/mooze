@@ -11,14 +11,18 @@ func NewScreen() *Screen {
 	return &Screen{}
 }
 
-func (s Screen) LoadAlternateScreen() {
+func (s *Screen) LoadAlternateScreen() {
 	fmt.Println("\033[?1049h\033[H")
 }
 
-func (s Screen) UnloadAlternateScreen() {
+func (s *Screen) UnloadAlternateScreen() {
 	fmt.Println("\033[?1049l")
 }
 
-func (s Screen) Println(v ...interface{}) {
+func (s *Screen) Println(v ...interface{}) {
 	fmt.Println(v...)
+}
+
+func (s *Screen) ReadNumber(n *int) {
+	fmt.Scanf("%d", n)
 }
