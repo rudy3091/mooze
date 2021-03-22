@@ -19,6 +19,7 @@ func Run() {
 	s.LoadAlternateScreen()
 	s.Println("mooze v2\r")
 	s.Println("\033[H")
+
 	s.Println("u: enter url input mode\r")
 	s.Println("m: enter request method input mode\r")
 	s.Println("b: enter request body input mode\r")
@@ -26,7 +27,6 @@ func Run() {
 
 CORE:
 	for {
-		// s.ReadNumber(&n)
 		buf := make([]byte, 10)
 		t.Read(buf)
 
@@ -42,14 +42,18 @@ CORE:
 
 		switch string(buf[0]) {
 		case "u":
+			str := ""
 			s.Println("\033[31mInput target url\r\033[0m")
+			s.Print("\033[31m> \033[0m")
 			t.RestoreRaw()
-			t.Read(buf)
-			mooze.Url = string(buf)
+			// t.Read(buf)
+			t.ReadString(str)
+			mooze.Url = str
 			t.MakeRaw()
 
 		case "m":
 			s.Println("\033[31mInput request method\r\033[0m")
+			s.Print("\033[31m> \033[0m")
 			t.RestoreRaw()
 			t.RestoreRaw()
 			t.Read(buf)

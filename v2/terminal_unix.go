@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"fmt"
 	"os"
 	"syscall"
 
@@ -51,4 +52,11 @@ func (t *TerminalUnix) RestoreNonblock() {
 func (t *TerminalUnix) Read(buf []byte) []byte {
 	syscall.Read(int(t.In.Fd()), buf)
 	return buf
+}
+
+func (t *TerminalUnix) ReadString(s string) {
+	_, err := fmt.Scanln(&s)
+	if err != nil {
+		panic(err)
+	}
 }
