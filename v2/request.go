@@ -35,8 +35,8 @@ func (r *Request) SetHttpClient() {
 }
 
 func (r *Request) Send() []byte {
-	// req, err := http.NewRequest(HttpMethod.GET, r.Url, nil)
-	req, err := http.NewRequest("GET", "https://api.github.com/users/RudyPark3091", nil)
+	req, err := http.NewRequest(HttpMethod.GET, r.Url, nil)
+	// req, err := http.NewRequest("GET", "https://api.github.com/users/RudyPark3091", nil)
 	if err != nil {
 		panic(err)
 	}

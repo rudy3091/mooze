@@ -54,9 +54,11 @@ func (t *TerminalUnix) Read(buf []byte) []byte {
 	return buf
 }
 
-func (t *TerminalUnix) ReadString(s string) {
+func (t *TerminalUnix) ReadString() string {
+	var s string
 	_, err := fmt.Scanln(&s)
 	if err != nil {
 		panic(err)
 	}
+	return s
 }

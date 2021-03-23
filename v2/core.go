@@ -62,7 +62,7 @@ CORE:
 			s.Print("\033[31m> \033[0m")
 			t.RestoreRaw()
 			// t.Read(buf)
-			t.ReadString(str)
+			str = t.ReadString()
 			r.Url = str
 			t.MakeRaw()
 
@@ -80,8 +80,10 @@ CORE:
 		case "s":
 			s.Println("\033[31mRequest Sent\r\033[0m")
 			res := r.Send()
+			t.RestoreRaw()
 			s.Println(string(res))
 			s.Print("\r")
+			t.MakeRaw()
 		}
 	}
 
