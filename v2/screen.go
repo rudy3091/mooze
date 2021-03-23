@@ -27,6 +27,15 @@ func (s *Screen) Print(v ...interface{}) {
 	fmt.Print(v...)
 }
 
+func (s *Screen) MoveCursorTo(x, y int) {
+	fmt.Println("\033[" + string(x) + ";" + string(y) + "H")
+}
+
 func (s *Screen) ClearLine() {
 	fmt.Print("\033[2K")
+}
+
+func (s *Screen) ClearScreen() {
+	s.MoveCursorTo(0, 0)
+	fmt.Print("\033[2J")
 }
