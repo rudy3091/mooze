@@ -40,6 +40,7 @@ func (r *Request) Send() []byte {
 	if err != nil {
 		panic(err)
 	}
+	req.Header.Add("Content-Type", "application/json")
 
 	res, err := r.Client.Do(req)
 	if err != nil {
