@@ -37,6 +37,7 @@ func Run() {
 CORE:
 	for {
 		buf := make([]byte, 10)
+		strBuf := ""
 		t.Read(buf)
 
 		s.ClearLine()
@@ -57,13 +58,21 @@ CORE:
 
 		// enter url input mode
 		case "u":
-			str := ""
 			s.Println("\033[31mInput target url\r\033[0m")
 			s.Print("\033[31m> \033[0m")
 			t.RestoreRaw()
 			// t.Read(buf)
-			str = t.ReadString()
-			r.Url = str
+			strBuf = t.ReadString()
+			r.Url = strBuf
+			t.MakeRaw()
+
+		// enter request body input mode
+		case "b":
+			s.Println("\033[31mInput request body\r\033[0m")
+			s.Print("\033[31m> \033[0m")
+			t.RestoreRaw()
+			strBuf = t.ReadString()
+			r.Body = strBuf
 			t.MakeRaw()
 
 		// enter method input mode
@@ -71,18 +80,21 @@ CORE:
 			s.Println("\033[31mInput request method\r\033[0m")
 			s.Print("\033[31m> \033[0m")
 			t.RestoreRaw()
-			t.RestoreRaw()
-			t.Read(buf)
-			r.Method = string(buf)
+			strBuf = t.ReadString()
+			r.Method = strBuf
 			t.MakeRaw()
 
 		// send request
 		case "s":
-			s.Println("\033[31mRequest Sent\r\033[0m")
-			res := r.Send()
+			s.Println("\033[31mRequest Sent\n\r\033[0m")
+			res, err := r.Send()
 			t.RestoreRaw()
-			s.Println(string(res))
-			s.Print("\r")
+			s.Println("\033[31mGot Response:\r\033[0m")
+			if err != nil {
+				s.Print(err, "\r")
+			}
+			s.Println(r.Json(res))
+			s.Print("\n\r")
 			t.MakeRaw()
 		}
 	}

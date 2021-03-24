@@ -1,6 +1,8 @@
 package v2
 
 import (
+	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 )
@@ -16,9 +18,11 @@ var HttpMethod = httpMethodStruct{
 }
 
 type Request struct {
-	Url    string
-	Method string
-	Client *http.Client
+	Url        string
+	Method     string
+	Body       string
+	BodyBuffer *bytes.Buffer
+	Client     *http.Client
 }
 
 func NewRequest() *Request {
@@ -34,23 +38,53 @@ func (r *Request) SetHttpClient() {
 	r.Client = &http.Client{}
 }
 
-func (r *Request) Send() []byte {
-	req, err := http.NewRequest(HttpMethod.GET, r.Url, nil)
-	// req, err := http.NewRequest("GET", "https://api.github.com/users/RudyPark3091", nil)
+// Json() prettifies json byte data and returns string
+func (r *Request) Json(data []byte) string {
+	j := &bytes.Buffer{}
+	err := json.Indent(j, data, "", "  ")
+	// invalid json format
 	if err != nil {
-		panic(err)
+		return string(data)
+	}
+	return string(j.Bytes())
+}
+
+func (r *Request) ParseJson(s string) *bytes.Buffer {
+	b := []byte(s)
+	j := &bytes.Buffer{}
+	err := json.Indent(j, b, "", "  ")
+	// not valid json
+	if err != nil {
+		return bytes.NewBufferString(s)
+	}
+	return j
+}
+
+func (r *Request) Send() ([]byte, error) {
+	req, err := (func() (*http.Request, error) {
+		if r.Method == HttpMethod.GET {
+			req, err := http.NewRequest(r.Method, r.Url, nil)
+			return req, err
+		} else {
+			req, err := http.NewRequest(r.Method, r.Url, bytes.NewBufferString(r.Body))
+			return req, err
+		}
+	})()
+	if err != nil {
+		return nil, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 
 	res, err := r.Client.Do(req)
+
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return body
+	return body, nil
 }
