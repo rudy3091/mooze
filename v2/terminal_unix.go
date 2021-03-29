@@ -1,7 +1,8 @@
 package v2
 
 import (
-	"fmt"
+	// "fmt"
+	"io"
 	"os"
 	"syscall"
 
@@ -9,13 +10,20 @@ import (
 )
 
 type TerminalUnix struct {
-	In    *os.File
-	State *terminal.State
+	In     *os.File
+	State  *terminal.State
+	Prompt *terminal.Terminal
 }
 
 func NewTerminalUnix() *TerminalUnix {
 	return &TerminalUnix{
 		In: openTty(),
+		Prompt: terminal.NewTerminal(
+			struct {
+				io.Reader
+				io.Writer
+			}{os.Stdin, os.Stdout}, "",
+		),
 	}
 }
 
@@ -54,11 +62,17 @@ func (t *TerminalUnix) Read(buf []byte) []byte {
 	return buf
 }
 
-func (t *TerminalUnix) ReadString() string {
-	var s string
-	_, err := fmt.Scanln(&s)
+func (t *TerminalUnix) ReadString() (string, error) {
+	// var s string
+	// _, err := fmt.Scanln(&s)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// return s
+
+	line, err := t.Prompt.ReadLine()
 	if err != nil {
-		panic(err)
+		return "", err
 	}
-	return s
+	return line, nil
 }

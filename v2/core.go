@@ -12,7 +12,8 @@ func NewMooze(s *Screen, t Terminal, r *Request) *mooze {
 	return &mooze{s, &t, r}
 }
 
-func (m *mooze) PrintKeymaps() {
+func (m *mooze) Init() {
+	m.screen.Println("\033[31mMooze: Yet another REST api test tool for command-line users\033[0m\r")
 	m.screen.Println("u: enter url input mode\r")
 	m.screen.Println("m: enter request method input mode\r")
 	m.screen.Println("b: enter request body input mode\r")
@@ -32,15 +33,14 @@ func Run() {
 	s.LoadAlternateScreen()
 	s.ClearScreen()
 
-	mooze.PrintKeymaps()
+	mooze.Init()
 
 CORE:
 	for {
 		buf := make([]byte, 10)
-		strBuf := ""
 		t.Read(buf)
 
-		s.ClearLine()
+		// s.ClearLine()
 
 		if buf[0] == 113 {
 			s.Println("\n\033[31mTerminating...\r\033[0m")
@@ -48,48 +48,51 @@ CORE:
 		}
 
 		// s.Print("Input:", string(buf), "\r")
-		s.Print(string(buf), "\r")
+		s.Print(string(buf))
 
 		switch string(buf[0]) {
 		// refresh
 		case "r":
 			s.ClearScreen()
-			mooze.PrintKeymaps()
+			mooze.Init()
 
 		// enter url input mode
 		case "u":
-			s.Println("\033[31mInput target url\r\033[0m")
-			s.Print("\033[31m> \033[0m")
-			t.RestoreRaw()
-			// t.Read(buf)
-			strBuf = t.ReadString()
+			s.Println("\r\033[31mInput target url\r\033[0m")
+			s.Print("\r\033[31m> \033[0m")
+			strBuf, err := t.ReadString()
+			if err != nil {
+				s.Print(err, "\r")
+			}
 			r.Url = strBuf
-			t.MakeRaw()
 
 		// enter request body input mode
 		case "b":
-			s.Println("\033[31mInput request body\r\033[0m")
-			s.Print("\033[31m> \033[0m")
-			t.RestoreRaw()
-			strBuf = t.ReadString()
+			s.Println("\r\033[31mInput request body\r\033[0m")
+			s.Print("\r\033[31m> \033[0m")
+			strBuf, err := t.ReadString()
+			if err != nil {
+				s.Print(err, "\r")
+			}
 			r.Body = strBuf
-			t.MakeRaw()
 
 		// enter method input mode
 		case "m":
-			s.Println("\033[31mInput request method\r\033[0m")
-			s.Print("\033[31m> \033[0m")
-			t.RestoreRaw()
-			strBuf = t.ReadString()
+			s.Println("\r\033[31mInput request method\r\033[0m")
+			s.Print("\r\033[31m> \033[0m")
+			strBuf, err := t.ReadString()
+			if err != nil {
+				s.Print(err, "\r")
+			}
 			r.Method = strBuf
-			t.MakeRaw()
 
 		// send request
 		case "s":
-			s.Println("\033[31mRequest Sent\n\r\033[0m")
+			s.Println("\r\033[31mRequest Sent\n\r\033[0m")
 			res, err := r.Send()
+			// must call RestoreRaw to see not messy response
 			t.RestoreRaw()
-			s.Println("\033[31mGot Response:\r\033[0m")
+			s.Println("\r\033[31mGot Response:\r\033[0m")
 			if err != nil {
 				s.Print(err, "\r")
 			}
