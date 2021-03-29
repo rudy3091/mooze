@@ -59,8 +59,8 @@ CORE:
 		// enter url input mode
 		case "u":
 			s.Println("\r\033[31mInput target url\r\033[0m")
-			s.Print("\r\033[31m> \033[0m")
-			strBuf, err := t.ReadString()
+			// s.Print("\r\033[31m> \033[0m")
+			strBuf, err := t.ReadStringTyped("url")
 			if err != nil {
 				s.Print(err, "\r")
 			}
@@ -69,8 +69,8 @@ CORE:
 		// enter request body input mode
 		case "b":
 			s.Println("\r\033[31mInput request body\r\033[0m")
-			s.Print("\r\033[31m> \033[0m")
-			strBuf, err := t.ReadString()
+			// s.Print("\r\033[31m> \033[0m")
+			strBuf, err := t.ReadStringTyped("body")
 			if err != nil {
 				s.Print(err, "\r")
 			}
@@ -79,8 +79,8 @@ CORE:
 		// enter method input mode
 		case "m":
 			s.Println("\r\033[31mInput request method\r\033[0m")
-			s.Print("\r\033[31m> \033[0m")
-			strBuf, err := t.ReadString()
+			// s.Print("\r\033[31m> \033[0m")
+			strBuf, err := t.ReadStringTyped("method")
 			if err != nil {
 				s.Print(err, "\r")
 			}

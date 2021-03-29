@@ -9,20 +9,38 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+type StdReadWriter struct {
+	io.Reader
+	io.Writer
+}
+
 type TerminalUnix struct {
-	In     *os.File
-	State  *terminal.State
-	Prompt *terminal.Terminal
+	In           *os.File
+	State        *terminal.State
+	Prompt       *terminal.Terminal
+	UrlPrompt    *terminal.Terminal
+	MethodPrompt *terminal.Terminal
+	BodyPrompt   *terminal.Terminal
 }
 
 func NewTerminalUnix() *TerminalUnix {
 	return &TerminalUnix{
 		In: openTty(),
 		Prompt: terminal.NewTerminal(
-			struct {
-				io.Reader
-				io.Writer
-			}{os.Stdin, os.Stdout}, "",
+			StdReadWriter{os.Stdin, os.Stdout},
+			"\033[36m>>>\033[0m ",
+		),
+		UrlPrompt: terminal.NewTerminal(
+			StdReadWriter{os.Stdin, os.Stdout},
+			"\033[36murl: >>>\033[0m ",
+		),
+		MethodPrompt: terminal.NewTerminal(
+			StdReadWriter{os.Stdin, os.Stdout},
+			"\033[36mmethod: >>>\033[0m ",
+		),
+		BodyPrompt: terminal.NewTerminal(
+			StdReadWriter{os.Stdin, os.Stdout},
+			"\033[36mbody: >>>\033[0m ",
 		),
 	}
 }
@@ -63,14 +81,44 @@ func (t *TerminalUnix) Read(buf []byte) []byte {
 }
 
 func (t *TerminalUnix) ReadString() (string, error) {
-	// var s string
-	// _, err := fmt.Scanln(&s)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// return s
-
 	line, err := t.Prompt.ReadLine()
+	if err != nil {
+		return "", err
+	}
+	return line, nil
+}
+
+func (t *TerminalUnix) ReadStringTyped(ts string) (string, error) {
+	switch ts {
+	case "url":
+		return t.ReadUrlString()
+	case "method":
+		return t.ReadMethodString()
+	case "body":
+		return t.ReadBodyString()
+	default:
+		return t.ReadString()
+	}
+}
+
+func (t *TerminalUnix) ReadUrlString() (string, error) {
+	line, err := t.UrlPrompt.ReadLine()
+	if err != nil {
+		return "", err
+	}
+	return line, nil
+}
+
+func (t *TerminalUnix) ReadMethodString() (string, error) {
+	line, err := t.MethodPrompt.ReadLine()
+	if err != nil {
+		return "", err
+	}
+	return line, nil
+}
+
+func (t *TerminalUnix) ReadBodyString() (string, error) {
+	line, err := t.BodyPrompt.ReadLine()
 	if err != nil {
 		return "", err
 	}
