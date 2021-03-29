@@ -58,6 +58,7 @@ CORE:
 
 		// enter url input mode
 		case "u":
+			s.ClearLine()
 			s.Println("\r\033[31mInput target url\r\033[0m")
 			// s.Print("\r\033[31m> \033[0m")
 			strBuf, err := t.ReadStringTyped("url")
@@ -68,6 +69,7 @@ CORE:
 
 		// enter request body input mode
 		case "b":
+			s.ClearLine()
 			s.Println("\r\033[31mInput request body\r\033[0m")
 			// s.Print("\r\033[31m> \033[0m")
 			strBuf, err := t.ReadStringTyped("body")
@@ -78,6 +80,7 @@ CORE:
 
 		// enter method input mode
 		case "m":
+			s.ClearLine()
 			s.Println("\r\033[31mInput request method\r\033[0m")
 			// s.Print("\r\033[31m> \033[0m")
 			strBuf, err := t.ReadStringTyped("method")
@@ -88,6 +91,7 @@ CORE:
 
 		// send request
 		case "s":
+			s.ClearLine()
 			s.Println("\r\033[31mRequest Sent\n\r\033[0m")
 			res, err := r.Send()
 			// must call RestoreRaw to see not messy response
