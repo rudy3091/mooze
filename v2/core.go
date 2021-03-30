@@ -1,6 +1,8 @@
 package v2
 
-import ()
+import (
+	"strconv"
+)
 
 type mooze struct {
 	screen       *Screen
@@ -103,7 +105,17 @@ CORE:
 				s.Print(err, "\r")
 			}
 			s.Println(r.Json(res))
-			s.Println(code)
+			codeNumber := code[0:3]
+			switch i, _ := strconv.Atoi(codeNumber); i / 100 {
+			case 2:
+				s.Println(FgBlack(BgGreen(code)))
+				break
+			case 4, 5:
+				s.Println(BgRed(code))
+				break
+			default:
+				s.Println(BgBlue(code))
+			}
 			s.Print("\n\r")
 			t.MakeRaw()
 		}
