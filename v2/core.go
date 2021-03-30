@@ -24,6 +24,11 @@ func (m *mooze) Init() {
 	m.screen.Println("\r")
 }
 
+func (m *mooze) Refresh() {
+	m.screen.ClearScreen()
+	m.Init()
+}
+
 func Run() {
 	// initializing components
 	s := NewScreen()
@@ -57,8 +62,7 @@ CORE:
 		switch string(buf[0]) {
 		// refresh
 		case "r":
-			s.ClearScreen()
-			mooze.Init()
+			mooze.Refresh()
 
 		// enter url input mode
 		case "u":
@@ -70,6 +74,7 @@ CORE:
 				s.Print(err, "\r")
 			}
 			r.Url = strBuf
+			mooze.Refresh()
 
 		// enter request body input mode
 		case "b":
@@ -81,6 +86,7 @@ CORE:
 				s.Print(err, "\r")
 			}
 			r.Body = strBuf
+			mooze.Refresh()
 
 		// enter method input mode
 		case "m":
@@ -92,6 +98,7 @@ CORE:
 				s.Print(err, "\r")
 			}
 			r.Method = strBuf
+			mooze.Refresh()
 
 		// send request
 		case "s":
