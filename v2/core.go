@@ -19,6 +19,7 @@ func (m *mooze) Init() {
 	m.screen.Println("request \033[31mb\033[0mody: " + m.request.Body + "\r")
 	m.screen.Println("\033[31ms\033[0mend request\r")
 	m.screen.Println("\033[31mq\033[0muit\r")
+	m.screen.Println("\r")
 }
 
 func Run() {
@@ -94,7 +95,7 @@ CORE:
 		case "s":
 			s.ClearLine()
 			s.Println("\r\033[31mRequest Sent\n\r\033[0m")
-			res, err := r.Send()
+			res, code, err := r.Send()
 			// must call RestoreRaw to see not messy response
 			t.RestoreRaw()
 			s.Println("\r\033[31mGot Response:\r\033[0m")
@@ -102,6 +103,7 @@ CORE:
 				s.Print(err, "\r")
 			}
 			s.Println(r.Json(res))
+			s.Println(code)
 			s.Print("\n\r")
 			t.MakeRaw()
 		}

@@ -60,7 +60,7 @@ func (r *Request) ParseJson(s string) *bytes.Buffer {
 	return j
 }
 
-func (r *Request) Send() ([]byte, error) {
+func (r *Request) Send() ([]byte, string, error) {
 	req, err := (func() (*http.Request, error) {
 		if r.Method == HttpMethod.GET {
 			req, err := http.NewRequest(r.Method, r.Url, nil)
@@ -71,20 +71,20 @@ func (r *Request) Send() ([]byte, error) {
 		}
 	})()
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	req.Header.Add("Content-Type", "application/json")
 
 	res, err := r.Client.Do(req)
 
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
-	return body, nil
+	return body, res.Status, nil
 }
