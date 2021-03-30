@@ -1,11 +1,9 @@
 # Mooze (**UNDER DEVELOPMENT**)
 A command-line REST api test tool  
   
-## Features available
-- Responsive terminal UI
-- Http request - GET, POST  
+## Preview
   
-![0-0-1-image](./asset/image/0-0-1.gif)
+![0-0-2-image](./asset/image/0-0-2.gif)
   
 ## Install
 mooze requires go to be installed  
@@ -22,14 +20,11 @@ $ mooze
 - \[u\]: Enter input mode for target url  
 - \[m\]: Enter input mode for http method  
 - \[b\]: Enter input mode for request body(as json)  
-- \[Ctrl + s\]: Send request  
-- \[q\]: Exit application  
+- \[s\]: Send request  
+- \[q\]: Quit application  
   
 ## TODOS
 Add test codes  
-Check response timeout  
-Let error don't kill application  
-Navigate through response text  
-Support another methods - PUT, PATCH, DELETE ...  
+Check response time  
 Add history mngment (with additional tui)  
 Add bulk request feature  
