@@ -35,6 +35,7 @@ func (m *mooze) OpenSelection(opt []string) string {
 	t := NewTerminalUnix()
 	idx := 0
 	l := len(opt)
+	m.screen.HideCursor()
 
 SELECT:
 	for {
@@ -74,6 +75,7 @@ SELECT:
 			break SELECT
 		}
 	}
+	m.screen.ShowCursor()
 	return opt[idx]
 }
 

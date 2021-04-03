@@ -39,3 +39,11 @@ func (s *Screen) ClearScreen() {
 	s.MoveCursorTo(0, 0)
 	fmt.Print("\033[2J")
 }
+
+func (s *Screen) HideCursor() {
+	fmt.Print("\033[?25l")
+}
+
+func (s *Screen) ShowCursor() {
+	fmt.Print("\033[?25h")
+}
