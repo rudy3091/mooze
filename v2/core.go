@@ -118,10 +118,10 @@ CORE:
 				s.Println(FgBlack(BgGreen(code)))
 				break
 			case 4, 5:
-				s.Println(BgRed(code))
+				s.Println(FgBlack(BgRed(code)))
 				break
 			default:
-				s.Println(BgBlue(code))
+				s.Println(FgBlack(BgBlue(code)))
 			}
 			s.Print("\n\r")
 			t.MakeRaw()
