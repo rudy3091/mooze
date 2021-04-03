@@ -29,6 +29,54 @@ func (m *mooze) Refresh() {
 	m.Init()
 }
 
+// OpenSelection takes string slice and returns
+// selected item as string
+func (m *mooze) OpenSelection(opt []string) string {
+	t := NewTerminalUnix()
+	idx := 0
+	l := len(opt)
+
+SELECT:
+	for {
+		m.Refresh()
+		for i, s := range opt {
+			if i == idx {
+				m.screen.Println(BgGreen("\r" + s))
+			} else {
+				m.screen.Println("\r" + s)
+			}
+		}
+		m.screen.Print("\r")
+
+		buf := make([]byte, 10)
+		t.Read(buf)
+
+		switch string(buf[0]) {
+		case "h":
+			fallthrough
+		case "j":
+			if idx+1 < l {
+				idx += 1
+			}
+
+		case "l":
+			fallthrough
+		case "k":
+			if idx > 0 {
+				idx -= 1
+			}
+
+		// enter key
+		case string([]byte{13}):
+			fallthrough
+		case "q":
+			m.Refresh()
+			break SELECT
+		}
+	}
+	return opt[idx]
+}
+
 func Run() {
 	// initializing components
 	s := NewScreen()
@@ -125,6 +173,15 @@ CORE:
 			}
 			s.Print("\n\r")
 			t.MakeRaw()
+
+		case "t":
+			opts := []string{
+				"test1",
+				"test2",
+				"test3",
+				"test4",
+			}
+			s.Println(mooze.OpenSelection(opts) + "\r")
 		}
 	}
 
