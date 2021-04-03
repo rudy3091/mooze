@@ -22,6 +22,7 @@ type Request struct {
 	Method     string
 	Body       string
 	BodyBuffer *bytes.Buffer
+	Headers    map[string]string
 	Client     *http.Client
 }
 
@@ -29,6 +30,9 @@ func NewRequest() *Request {
 	r := &Request{
 		Url:    "",
 		Method: HttpMethod.GET,
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 	r.SetHttpClient()
 	return r
@@ -73,7 +77,9 @@ func (r *Request) Send() ([]byte, string, error) {
 	if err != nil {
 		return nil, "", err
 	}
-	req.Header.Add("Content-Type", "application/json")
+	for k, v := range r.Headers {
+		req.Header.Add(k, v)
+	}
 
 	res, err := r.Client.Do(req)
 
