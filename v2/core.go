@@ -57,14 +57,16 @@ SELECT:
 
 		switch string(buf[0]) {
 		case "h":
-			fallthrough
+			idx = 0
+
 		case "j":
 			if idx+1 < l {
 				idx += 1
 			}
 
 		case "l":
-			fallthrough
+			idx = l - 1
+
 		case "k":
 			if idx > 0 {
 				idx -= 1
