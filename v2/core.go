@@ -30,8 +30,8 @@ func (m *mooze) Refresh() {
 }
 
 // OpenSelection takes string slice and returns
-// selected item as string
-func (m *mooze) OpenSelection(opt []string) string {
+// selected item's index
+func (m *mooze) OpenSelection(opt []string) int {
 	t := NewTerminalUnix()
 	idx := 0
 	l := len(opt)
@@ -42,7 +42,7 @@ SELECT:
 		m.Refresh()
 		for i, s := range opt {
 			if i == idx {
-				m.screen.Println(BgGreen("\r" + s))
+				m.screen.Println(FgBlack(BgGreen("\r" + s)))
 			} else {
 				m.screen.Println("\r" + s)
 			}
@@ -76,7 +76,7 @@ SELECT:
 		}
 	}
 	m.screen.ShowCursor()
-	return opt[idx]
+	return idx
 }
 
 func Run() {
@@ -183,7 +183,7 @@ CORE:
 				"test3",
 				"test4",
 			}
-			s.Println(mooze.OpenSelection(opts) + "\r")
+			s.Println(opts[mooze.OpenSelection(opts)] + "\r")
 		}
 	}
 
