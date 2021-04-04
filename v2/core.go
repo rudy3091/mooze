@@ -165,7 +165,12 @@ CORE:
 				s.Print(err, "\r")
 			}
 			s.Println(r.Json(res))
-			codeNumber := code[0:3]
+
+			codeNumber := "100"
+			if len(code) > 3 {
+				codeNumber = code[0:3]
+			}
+
 			switch i, _ := strconv.Atoi(codeNumber); i / 100 {
 			case 2:
 				s.Println(FgBlack(BgGreen(code)))
