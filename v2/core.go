@@ -16,11 +16,14 @@ func NewMooze(s *Screen, t Terminal, r *Request) *mooze {
 
 func (m *mooze) Init() {
 	m.screen.Println("\033[35mMooze: Yet another REST api test tool for command-line users\033[0m\r")
-	m.screen.Println("request \033[31mu\033[0mrl: " + m.request.Url + "\r")
-	m.screen.Println("request \033[31mm\033[0method: " + m.request.Method + "\r")
-	m.screen.Println("request \033[31mb\033[0mody: " + m.request.Body + "\r")
-	m.screen.Println("\033[31ms\033[0mend request\r")
-	m.screen.Println("\033[31mq\033[0muit\r")
+	m.screen.Println("Request" + "\r")
+	m.screen.Println("- " + FgRed("u") + "rl: " + m.request.Url + "\r")
+	m.screen.Println("- " + FgRed("m") + "ethod: " + m.request.Method + "\r")
+	m.screen.Println("- " + FgRed("b") + "ody: " + m.request.Body + "\r")
+	m.screen.Println("Operations" + "\r")
+	m.screen.Println("- " + FgRed("r") + "efresh screen\r")
+	m.screen.Println("- " + FgRed("s") + "end request\r")
+	m.screen.Println("- " + FgRed("q") + "uit\r")
 	m.screen.Println("\r")
 }
 
