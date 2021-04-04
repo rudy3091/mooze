@@ -28,19 +28,19 @@ func NewTerminalUnix() *TerminalUnix {
 		In: openTty(),
 		Prompt: terminal.NewTerminal(
 			StdReadWriter{os.Stdin, os.Stdout},
-			"\033[36m>>>\033[0m ",
+			FgGreen("> "),
 		),
 		UrlPrompt: terminal.NewTerminal(
 			StdReadWriter{os.Stdin, os.Stdout},
-			"\033[36murl: >>>\033[0m ",
+			FgGreen("url: > "),
 		),
 		MethodPrompt: terminal.NewTerminal(
 			StdReadWriter{os.Stdin, os.Stdout},
-			"\033[36mmethod: >>>\033[0m ",
+			FgGreen("method: > "),
 		),
 		BodyPrompt: terminal.NewTerminal(
 			StdReadWriter{os.Stdin, os.Stdout},
-			"\033[36mbody: >>>\033[0m ",
+			FgGreen("body: > "),
 		),
 	}
 }
