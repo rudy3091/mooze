@@ -27,6 +27,16 @@ func (s *Screen) Print(v ...interface{}) {
 	fmt.Print(v...)
 }
 
+func (s *Screen) MoveCursorUp() {
+	up := []byte{27, 91, 65, 0}
+	fmt.Print(string(up))
+}
+
+func (s *Screen) MoveCursorDown() {
+	down := []byte{27, 91, 66, 0}
+	fmt.Print(string(down))
+}
+
 func (s *Screen) MoveCursorTo(x, y int) {
 	fmt.Println("\033[" + string(x) + ";" + string(y) + "H")
 }

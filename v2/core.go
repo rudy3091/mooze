@@ -40,37 +40,52 @@ func (m *mooze) OpenSelection(opt []string) int {
 	l := len(opt)
 	m.screen.HideCursor()
 
+	m.Refresh()
+	for i, s := range opt {
+		if i == idx {
+			m.screen.Println(FgBlack(BgGreen("\r" + s)))
+		} else {
+			m.screen.Println("\r" + s)
+		}
+	}
+	m.screen.Print("\r")
+	for i := 0; i < l; i++ {
+		m.screen.MoveCursorUp()
+	}
+
 SELECT:
 	for {
-		m.Refresh()
-		for i, s := range opt {
-			if i == idx {
-				m.screen.Println(FgBlack(BgGreen("\r" + s)))
-			} else {
-				m.screen.Println("\r" + s)
-			}
-		}
-		m.screen.Print("\r")
-
 		buf := make([]byte, 10)
 		t.Read(buf)
 
+		// process inputs
 		switch string(buf[0]) {
-		case "h":
-			idx = 0
+
+		// case "h":
+		// 	idx = 0
 
 		case "j":
-			if idx+1 < l {
-				idx += 1
+			if idx+1 >= l {
+				continue
 			}
+			m.screen.ClearLine()
+			m.screen.Print(opt[idx], "\r")
+			idx += 1
+			m.screen.MoveCursorDown()
+			m.screen.Print(FgBlack(BgGreen("\r"+opt[idx])), "\r")
 
-		case "l":
-			idx = l - 1
+		// case "l":
+		// 	idx = l - 1
 
 		case "k":
-			if idx > 0 {
-				idx -= 1
+			if idx <= 0 {
+				continue
 			}
+			m.screen.ClearLine()
+			m.screen.Print(opt[idx], "\r")
+			idx -= 1
+			m.screen.MoveCursorUp()
+			m.screen.Print(FgBlack(BgGreen("\r"+opt[idx])), "\r")
 
 		// enter key
 		case string([]byte{13}):
