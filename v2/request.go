@@ -28,11 +28,9 @@ type Request struct {
 
 func NewRequest() *Request {
 	r := &Request{
-		Url:    "",
-		Method: HttpMethod.GET,
-		Headers: map[string]string{
-			"Content-Type": "application/json",
-		},
+		Url:     "",
+		Method:  HttpMethod.GET,
+		Headers: map[string]string{},
 	}
 	r.SetHttpClient()
 	return r
