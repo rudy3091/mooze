@@ -42,7 +42,7 @@ func (s *Screen) MoveCursorTo(x, y int) {
 }
 
 func (s *Screen) ClearLine() {
-	fmt.Print("\033[2K")
+	fmt.Print("\033[2K", "\r")
 }
 
 func (s *Screen) ClearScreen() {
