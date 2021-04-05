@@ -2,6 +2,7 @@ package v2
 
 import (
 	"strconv"
+	"strings"
 )
 
 type mooze struct {
@@ -15,11 +16,21 @@ func NewMooze(s *Screen, t Terminal, r *Request) *mooze {
 }
 
 func (m *mooze) Init() {
+	h := ""
+	if len(m.request.Headers) == 0 {
+		h += FgBlue("  + No headers\r\n")
+	} else {
+		for k, v := range m.request.Headers {
+			h += "  + " + k + ": " + v + "\r\n"
+		}
+	}
+
 	m.screen.Println("\033[35mMooze: Yet another REST api test tool for command-line users\033[0m\r")
 	m.screen.Println("Request" + "\r")
-	m.screen.Println("- " + FgRed("u") + "rl: " + m.request.Url + "\r")
-	m.screen.Println("- " + FgRed("m") + "ethod: " + m.request.Method + "\r")
-	m.screen.Println("- " + FgRed("b") + "ody: " + m.request.Body + "\r")
+	m.screen.Println("- " + FgRed("u") + "rl: " + FgBlue(m.request.Url) + "\r")
+	m.screen.Println("- " + FgRed("m") + "ethod: " + FgBlue(m.request.Method) + "\r")
+	m.screen.Println("- " + FgRed("b") + "ody: " + FgBlue(m.request.Body) + "\r")
+	m.screen.Println("- " + FgRed("h") + "eader:\n\r" + FgBlue(h) + "\r")
 	m.screen.Println("Operations" + "\r")
 	m.screen.Println("- " + FgRed("r") + "efresh screen\r")
 	m.screen.Println("- " + FgRed("s") + "end request\r")
@@ -168,6 +179,24 @@ CORE:
 				s.Print(err, "\r")
 			}
 			r.Method = strBuf
+			mooze.Refresh()
+
+		// enter request header input mode
+		case "h":
+			s.ClearLine()
+			s.Println(FgRed("Input request Header"), "\r")
+			s.Println(FgRed("format: (key): (value)"), "\r")
+			strBuf, err := t.ReadStringTyped("header")
+			if err != nil {
+				s.Print(err, "\r")
+			}
+			if strings.Contains(strBuf, ":") {
+				splitted := strings.Split(strBuf, ":")
+				r.Headers[splitted[0]] = splitted[1]
+				s.Println(FgRed("...\n\rHeader Added"), "\n\r")
+			} else {
+				s.Println(FgRed("...\n\rInvalid format!"), "\n\r")
+			}
 			mooze.Refresh()
 
 		// send request
