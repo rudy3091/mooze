@@ -134,6 +134,7 @@ CORE:
 		// refresh
 		case "r":
 			mooze.Refresh()
+			s.Println(FgRed("Refreshed!\n\r"))
 
 		// enter url input mode
 		case "u":
@@ -146,6 +147,7 @@ CORE:
 			}
 			r.Url = strBuf
 			mooze.Refresh()
+			s.Println(FgRed("\rUrl Updated!\n\r"))
 
 		// enter request body input mode
 		case "b":
@@ -158,6 +160,7 @@ CORE:
 			}
 			r.Body = strBuf
 			mooze.Refresh()
+			s.Println(FgRed("\rBody Updated!\n\r"))
 
 		// enter method input mode
 		case "m":
@@ -170,6 +173,7 @@ CORE:
 			}
 			r.Method = strBuf
 			mooze.Refresh()
+			s.Println(FgRed("\rMethod Updated!\n\r"))
 
 		// enter request header input mode
 		case "h":
@@ -183,11 +187,11 @@ CORE:
 			if strings.Contains(strBuf, ":") {
 				splitted := strings.Split(strBuf, ":")
 				r.Headers[splitted[0]] = splitted[1]
-				s.Println(FgRed("...\n\rHeader Added"), "\n\r")
+				mooze.Refresh()
+				s.Println(FgRed("\rHeader Added!"), "\n\r")
 			} else {
 				s.Println(FgRed("...\n\rInvalid format!"), "\n\r")
 			}
-			mooze.Refresh()
 
 		// send request
 		case "s":
