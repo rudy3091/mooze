@@ -16,14 +16,7 @@ func NewMooze(s *Screen, t Terminal, r *Request) *mooze {
 }
 
 func (m *mooze) Init() {
-	h := ""
-	if len(m.request.Headers) == 0 {
-		h += FgBlue("  + No headers\r\n")
-	} else {
-		for k, v := range m.request.Headers {
-			h += "  + " + k + ": " + v + "\r\n"
-		}
-	}
+	h := m.request.ParseHeaders()
 
 	m.screen.Println("\033[35mMooze: Yet another REST api test tool for command-line users\033[0m\r")
 	m.screen.Println("Request" + "\r")

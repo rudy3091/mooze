@@ -62,6 +62,20 @@ func (r *Request) ParseJson(s string) *bytes.Buffer {
 	return j
 }
 
+// ParseHeaders() parses request headers: map(key: value)
+// into string("key:value") and returns parsed string
+func (r *Request) ParseHeaders() string {
+	s := ""
+	if len(r.Headers) == 0 {
+		return "  + No headers\r\n"
+	} else {
+		for k, v := range r.Headers {
+			s += "  + " + k + ": " + v + "\r\n"
+		}
+		return s
+	}
+}
+
 func (r *Request) Send() ([]byte, string, error) {
 	req, err := (func() (*http.Request, error) {
 		if r.Method == HttpMethod.GET {
