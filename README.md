@@ -9,7 +9,7 @@ A command-line REST api test tool
 mooze requires go to be installed  
 only supports linux system for now (tested under WSL-Ubuntu, windows terminal)  
 ```
-$ git clone https://github.com/RudyPark3091/mooze.git ~/.mooze
+$ git clone https://github.com/rudy3091/mooze.git ~/.mooze
 $ cd ~/.mooze
 $ go build
 $ sudo ln -s ./mooze /usr/bin/mooze
