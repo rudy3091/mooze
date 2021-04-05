@@ -130,9 +130,6 @@ CORE:
 			break CORE
 		}
 
-		// s.Print("Input:", string(buf), "\r")
-		s.Print(string(buf))
-
 		switch string(buf[0]) {
 		// refresh
 		case "r":
@@ -222,15 +219,6 @@ CORE:
 			}
 			s.Print("\n\r")
 			t.MakeRaw()
-
-		case "t":
-			opts := []string{
-				"test1",
-				"test2",
-				"test3",
-				"test4",
-			}
-			s.Println(opts[mooze.OpenSelection(opts)] + "\r")
 		}
 	}
 
