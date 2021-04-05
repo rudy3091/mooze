@@ -76,6 +76,16 @@ func (r *Request) ParseHeaders() string {
 	}
 }
 
+func (r *Request) ParseHeadersOptions() []string {
+	s := []string{"+ Add new"}
+	if len(r.Headers) != 0 {
+		for k, v := range r.Headers {
+			s = append(s, "- "+k+": "+v)
+		}
+	}
+	return s
+}
+
 func (r *Request) Send() ([]byte, string, error) {
 	req, err := (func() (*http.Request, error) {
 		if r.Method == HttpMethod.GET {

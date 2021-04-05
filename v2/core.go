@@ -93,10 +93,12 @@ SELECT:
 
 		// enter key
 		case string([]byte{13}):
-			fallthrough
-		case "q":
 			m.Refresh()
 			break SELECT
+
+		// abort and return -1
+		case "q":
+			return -1
 		}
 	}
 	m.screen.ShowCursor()
@@ -178,19 +180,52 @@ CORE:
 		// enter request header input mode
 		case "h":
 			s.ClearLine()
-			s.Println(FgRed("Input request Header"), "\r")
-			s.Println(FgRed("format: (key): (value)"), "\r")
-			strBuf, err := t.ReadStringTyped("header")
-			if err != nil {
-				s.Print(err, "\r")
-			}
-			if strings.Contains(strBuf, ":") {
-				splitted := strings.Split(strBuf, ":")
-				r.Headers[splitted[0]] = splitted[1]
+			opts := r.ParseHeadersOptions()
+			opt := mooze.OpenSelection(opts)
+			if opt == 0 {
+				s.Println(FgRed("Input request Header"), "\r")
+				s.Println(FgRed("format: (key): (value)"), "\r")
+
+				strBuf, err := t.ReadStringTyped("header")
+				if err != nil {
+					s.Print(err, "\r")
+				}
+
+				if strings.Contains(strBuf, ":") {
+					splitted := strings.Split(strBuf, ":")
+					r.Headers[strings.TrimSpace(splitted[0])] =
+						strings.TrimSpace(splitted[1])
+
+					mooze.Refresh()
+					s.Println(FgRed("\rHeader Added!"), "\n\r")
+				} else {
+					s.Println(FgRed("...\n\rInvalid format!"), "\n\r")
+				}
+			} else if opt == -1 {
+				// do nothing but refresh screen
 				mooze.Refresh()
-				s.Println(FgRed("\rHeader Added!"), "\n\r")
 			} else {
-				s.Println(FgRed("...\n\rInvalid format!"), "\n\r")
+				key := strings.Split(opts[opt], ":")[0][2:]
+				s.Println(FgRed("Input request Header"), "\r")
+				s.Println(FgRed("format: (key): (value)"), "\r")
+
+				strBuf, err := t.ReadStringTyped("header")
+				if err != nil {
+					s.Print(err, "\r")
+				}
+
+				if strings.Contains(strBuf, ":") {
+					splitted := strings.Split(strBuf, ":")
+					r.Headers[strings.TrimSpace(splitted[0])] =
+						strings.TrimSpace(splitted[1])
+
+					mooze.Refresh()
+					s.Println(FgRed("\rHeader Updated!"), "\n\r")
+				} else {
+					delete(r.Headers, key)
+					mooze.Refresh()
+					s.Println(FgRed("...\n\rHeader Deleted!"), "\n\r")
+				}
 			}
 
 		// send request
