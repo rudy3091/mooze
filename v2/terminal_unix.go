@@ -21,6 +21,7 @@ type TerminalUnix struct {
 	UrlPrompt    *terminal.Terminal
 	MethodPrompt *terminal.Terminal
 	BodyPrompt   *terminal.Terminal
+	HeaderPrompt *terminal.Terminal
 }
 
 func NewTerminalUnix() *TerminalUnix {
@@ -41,6 +42,10 @@ func NewTerminalUnix() *TerminalUnix {
 		BodyPrompt: terminal.NewTerminal(
 			StdReadWriter{os.Stdin, os.Stdout},
 			FgGreen("body: > "),
+		),
+		HeaderPrompt: terminal.NewTerminal(
+			StdReadWriter{os.Stdin, os.Stdout},
+			FgGreen("header: > "),
 		),
 	}
 }
@@ -96,6 +101,8 @@ func (t *TerminalUnix) ReadStringTyped(ts string) (string, error) {
 		return t.ReadMethodString()
 	case "body":
 		return t.ReadBodyString()
+	case "header":
+		return t.ReadHeaderString()
 	default:
 		return t.ReadString()
 	}
@@ -119,6 +126,14 @@ func (t *TerminalUnix) ReadMethodString() (string, error) {
 
 func (t *TerminalUnix) ReadBodyString() (string, error) {
 	line, err := t.BodyPrompt.ReadLine()
+	if err != nil {
+		return "", err
+	}
+	return line, nil
+}
+
+func (t *TerminalUnix) ReadHeaderString() (string, error) {
+	line, err := t.HeaderPrompt.ReadLine()
 	if err != nil {
 		return "", err
 	}
