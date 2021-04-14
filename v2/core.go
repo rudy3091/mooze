@@ -194,7 +194,7 @@ CORE:
 				if strings.Contains(strBuf, ":") {
 					splitted := strings.Split(strBuf, ":")
 					r.Headers[strings.TrimSpace(splitted[0])] =
-						strings.TrimSpace(splitted[1])
+						strings.TrimSpace(strings.Join(splitted[1:], ":"))
 
 					mooze.Refresh()
 					s.Println(FgRed("\rHeader Added!"), "\n\r")
