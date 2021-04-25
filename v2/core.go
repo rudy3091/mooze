@@ -120,6 +120,16 @@ func Run() {
 
 	mooze.Init()
 
+	ch, done := t.GetWindowResizeChan()
+	go func() {
+		for {
+			<-ch
+			t.HandleResize()
+			s.Println("Window resize detected!: ", t.W, t.H, "\r")
+			mooze.Refresh()
+		}
+	}()
+
 CORE:
 	for {
 		buf := make([]byte, 10)
@@ -127,8 +137,10 @@ CORE:
 
 		// s.ClearLine()
 
+		// quit
 		if buf[0] == 113 {
 			s.Println("\n\033[31mTerminating...\r\033[0m")
+			done <- true
 			break CORE
 		}
 
@@ -261,5 +273,6 @@ CORE:
 		}
 	}
 
+	<-done
 	s.UnloadAlternateScreen()
 }

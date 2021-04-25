@@ -4,7 +4,9 @@ import (
 	// "fmt"
 	"io"
 	"os"
+	"os/signal"
 	"syscall"
+	"time"
 
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -15,6 +17,8 @@ type StdReadWriter struct {
 }
 
 type TerminalUnix struct {
+	W            int
+	H            int
 	In           *os.File
 	State        *terminal.State
 	Prompt       *terminal.Terminal
@@ -25,8 +29,17 @@ type TerminalUnix struct {
 }
 
 func NewTerminalUnix() *TerminalUnix {
+	fd := openTty()
+	w, h, err := terminal.GetSize(int(fd.Fd()))
+	if err != nil {
+		w = 0
+		h = 0
+	}
+
 	return &TerminalUnix{
-		In: openTty(),
+		W:  w,
+		H:  h,
+		In: fd,
 		Prompt: terminal.NewTerminal(
 			StdReadWriter{os.Stdin, os.Stdout},
 			FgGreen("> "),
@@ -138,4 +151,23 @@ func (t *TerminalUnix) ReadHeaderString() (string, error) {
 		return "", err
 	}
 	return line, nil
+}
+
+func (t *TerminalUnix) GetWindowResizeChan() (chan os.Signal, chan bool) {
+	sigs := make(chan os.Signal, 5)
+	done := make(chan bool, 5)
+	signal.Notify(sigs, syscall.SIGWINCH)
+	return sigs, done
+}
+
+func (t *TerminalUnix) HandleResize() {
+	time.Sleep(time.Millisecond * 500)
+	w, h, err := terminal.GetSize(int(t.In.Fd()))
+	if err != nil {
+		w = 0
+		h = 0
+	}
+
+	t.W = w
+	t.H = h
 }
