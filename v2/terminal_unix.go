@@ -153,7 +153,7 @@ func (t *TerminalUnix) ReadHeaderString() (string, error) {
 }
 
 func (t *TerminalUnix) GetWindowResizeChan() (chan os.Signal, chan bool) {
-	sigs := make(chan os.Signal)
+	sigs := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
 	signal.Notify(sigs, syscall.SIGWINCH)
 	return sigs, done

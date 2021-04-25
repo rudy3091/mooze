@@ -8,12 +8,13 @@ import (
 
 type mooze struct {
 	screen       *Screen
-	terminalUnix *Terminal
+	terminal     *Terminal
+	terminalUnix *TerminalUnix
 	request      *Request
 }
 
-func NewMooze(s *Screen, t Terminal, r *Request) *mooze {
-	return &mooze{s, &t, r}
+func NewMooze(s *Screen, t Terminal, tu *TerminalUnix, r *Request) *mooze {
+	return &mooze{s, &t, tu, r}
 }
 
 func (m *mooze) Init() {
@@ -37,6 +38,14 @@ func (m *mooze) Refresh() {
 	m.Init()
 }
 
+func (m *mooze) CompactString(str string) string {
+	w := m.terminalUnix.W
+	if w-2 > len(str) {
+		return str
+	}
+	return str[0:w-2] + ".."
+}
+
 // OpenSelection takes string slice and returns
 // selected item's index
 func (m *mooze) OpenSelection(opt []string) int {
@@ -48,9 +57,9 @@ func (m *mooze) OpenSelection(opt []string) int {
 	m.Refresh()
 	for i, s := range opt {
 		if i == idx {
-			m.screen.Println(FgBlack(BgGreen("\r" + s)))
+			m.screen.Println("\r" + FgBlack(BgGreen(m.CompactString(s))))
 		} else {
-			m.screen.Println("\r" + s)
+			m.screen.Println("\r" + m.CompactString(s))
 		}
 	}
 	m.screen.Print("\r")
@@ -74,10 +83,12 @@ SELECT:
 				continue
 			}
 			m.screen.ClearLine()
-			m.screen.Print(opt[idx], "\r")
+			m.screen.Print(m.CompactString(opt[idx]), "\r")
 			idx += 1
 			m.screen.MoveCursorDown()
-			m.screen.Print(FgBlack(BgGreen("\r"+opt[idx])), "\r")
+			m.screen.Print(
+				"\r"+FgBlack(BgGreen(m.CompactString(opt[idx]))), "\033[0m\r",
+			)
 
 		// case "l":
 		// 	idx = l - 1
@@ -87,10 +98,13 @@ SELECT:
 				continue
 			}
 			m.screen.ClearLine()
-			m.screen.Print(opt[idx], "\r")
+			// m.screen.Print(opt[idx], "\r")
+			m.screen.Print(m.CompactString(opt[idx]), "\r")
 			idx -= 1
 			m.screen.MoveCursorUp()
-			m.screen.Print(FgBlack(BgGreen("\r"+opt[idx])), "\r")
+			m.screen.Print(
+				"\r"+FgBlack(BgGreen(m.CompactString(opt[idx]))), "\033[0m\r",
+			)
 
 		// enter key
 		case string([]byte{13}):
@@ -111,7 +125,7 @@ func Run() {
 	s := NewScreen()
 	t := NewTerminalUnix()
 	r := NewRequest()
-	mooze := NewMooze(s, t, r)
+	mooze := NewMooze(s, nil, t, r)
 
 	t.MakeRaw()
 	defer t.RestoreRaw()
@@ -121,16 +135,15 @@ func Run() {
 
 	mooze.Init()
 
-	ch, done := t.GetWindowResizeChan()
+	ch, _ := t.GetWindowResizeChan()
 	defer close(ch)
-	defer close(done)
 
 	go func() {
 		for {
 			<-ch
-			time.Sleep(time.Millisecond * 300)
+			time.Sleep(time.Millisecond * 500)
 			t.HandleResize()
-			s.Println("Window resize detected!: ", t.W, t.H, "\r")
+			// s.Println("Window resize detected!: ", t.W, t.H, "\r")
 			mooze.Refresh()
 		}
 	}()
@@ -145,7 +158,6 @@ CORE:
 		// quit
 		if buf[0] == 113 {
 			s.Println("\n\033[31mTerminating...\r\033[0m")
-			done <- true
 			break CORE
 		}
 
@@ -278,6 +290,5 @@ CORE:
 		}
 	}
 
-	<-done
 	s.UnloadAlternateScreen()
 }
