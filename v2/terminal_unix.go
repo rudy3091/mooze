@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -154,14 +153,13 @@ func (t *TerminalUnix) ReadHeaderString() (string, error) {
 }
 
 func (t *TerminalUnix) GetWindowResizeChan() (chan os.Signal, chan bool) {
-	sigs := make(chan os.Signal, 5)
-	done := make(chan bool, 5)
+	sigs := make(chan os.Signal)
+	done := make(chan bool, 1)
 	signal.Notify(sigs, syscall.SIGWINCH)
 	return sigs, done
 }
 
 func (t *TerminalUnix) HandleResize() {
-	time.Sleep(time.Millisecond * 500)
 	w, h, err := terminal.GetSize(int(t.In.Fd()))
 	if err != nil {
 		w = 0

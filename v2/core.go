@@ -3,6 +3,7 @@ package v2
 import (
 	"strconv"
 	"strings"
+	"time"
 )
 
 type mooze struct {
@@ -121,9 +122,13 @@ func Run() {
 	mooze.Init()
 
 	ch, done := t.GetWindowResizeChan()
+	defer close(ch)
+	defer close(done)
+
 	go func() {
 		for {
 			<-ch
+			time.Sleep(time.Millisecond * 300)
 			t.HandleResize()
 			s.Println("Window resize detected!: ", t.W, t.H, "\r")
 			mooze.Refresh()
