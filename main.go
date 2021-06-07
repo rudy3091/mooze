@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/RudyPark3091/mooze/v2"
+	v3 "github.com/rudy3091/mooze/v3"
 )
 
 func main() {
-	v2.Run()
+	v3.Run()
 }
