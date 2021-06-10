@@ -1,23 +1,21 @@
 package args
 
-type T string
+type ch chan string
 
-type ch chan T
-
-func FromStringSlice(s []string) []T {
-	t := []T{}
+func FromStringSlice(s []string) []string {
+	t := []string{}
 	for _, str := range s {
-		t = append(t, T(str))
+		t = append(t, string(str))
 	}
 	return t
 }
 
-func (c ch) Next() T {
+func (c ch) Next() string {
 	return <-c
 }
 
-func Generate(source []T) ch {
-	yield := make(chan T)
+func Generate(source []string) ch {
+	yield := make(chan string)
 	idx := 0
 
 	go func() {
