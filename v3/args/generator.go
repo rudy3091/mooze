@@ -25,8 +25,6 @@ func Generate(source []T) ch {
 			if idx < len(source) {
 				yield <- source[idx]
 				idx++
-			} else {
-				yield <- ""
 			}
 		}
 	}()
