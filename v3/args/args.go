@@ -24,9 +24,53 @@ func GetArgs() []string {
 	return a[1:]
 }
 
-func Parse(a []string) Argv {
-	return []Arg{
-		{ArgInfo{"name", "desc", 'n', true, true}, "v"},
-		{argsAvailable["shell"], "sh"},
+func Parse() Argv {
+	args := GetArgs()
+	gen := Generate(FromStringSlice(GetArgs()))
+	result := []Arg{}
+	cnt := 0
+
+PARSE:
+	for {
+		cnt++
+		if cnt >= len(args) {
+			break PARSE
+		}
+
+		next := gen.Next()
+		single := next[1] != '-'
+
+		if single {
+			result = append(result,
+				handleSingleDash(next[1], gen, &cnt))
+		} else {
+			result = append(result,
+				handleDoubleDash(next[2:], gen, &cnt))
+		}
+	}
+
+	return result
+}
+
+func hasValue(flag string) bool {
+	return argsAvailable[flag].IsValueNeeded
+}
+
+func handleSingleDash(b byte, gen ch, cnt *int) Arg {
+	s := string(b)
+	if hasValue(s) {
+		*cnt++
+		return Arg{argsAvailable[s], gen.Next()}
+	} else {
+		return Arg{argsAvailable[s], ""}
+	}
+}
+
+func handleDoubleDash(s string, gen ch, cnt *int) Arg {
+	if hasValue(s) {
+		*cnt++
+		return Arg{argsAvailable[s], gen.Next()}
+	} else {
+		return Arg{argsAvailable[s], ""}
 	}
 }
