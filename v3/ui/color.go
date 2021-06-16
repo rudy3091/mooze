@@ -1,6 +1,10 @@
 package ui
 
-type ansiColor = byte
+import (
+	"strconv"
+)
+
+type ansiColor = int
 
 var keyEscape string = "\x1b["
 
@@ -17,10 +21,10 @@ const (
 	WHITE
 )
 
-func addFgColor(s string, c ansiColor) string {
-	return keyEscape + "3" + string(c) + s + reset
+func Fg(s string, c ansiColor) string {
+	return keyEscape + "3" + strconv.Itoa(c) + "m" + s + reset
 }
 
-func addBgColor(s string, c ansiColor) string {
-	return keyEscape + "4" + string(c) + s + reset
+func Bg(s string, c ansiColor) string {
+	return keyEscape + "4" + strconv.Itoa(c) + s + reset
 }
