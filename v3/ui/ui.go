@@ -12,12 +12,12 @@ func UnloadAlternateScreen() {
 	fmt.Print("\033[?1049l")
 }
 
-func Print(s string) {
-	fmt.Print(s, "\r")
+func Print(v interface{}) {
+	fmt.Print(v, "\r")
 }
 
-func Println(s string) {
-	fmt.Println(s, "\r")
+func Println(v interface{}) {
+	fmt.Println(v, "\r")
 }
 
 func KeyBindings() {
