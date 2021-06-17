@@ -42,4 +42,5 @@ func Run() {
 
 	ui.KeyBindings()
 	time.Sleep(time.Second * 2)
+	return
 }
