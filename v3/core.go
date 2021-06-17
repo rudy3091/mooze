@@ -37,9 +37,9 @@ func Run() {
 	ui.LoadAlternateScreen()
 	fd, state := makeRaw()
 
+	defer restoreRaw(fd, state)
+	defer ui.UnloadAlternateScreen()
+
 	ui.KeyBindings()
 	time.Sleep(time.Second * 2)
-
-	restoreRaw(fd, state)
-	ui.UnloadAlternateScreen()
 }
