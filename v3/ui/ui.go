@@ -12,11 +12,11 @@ func UnloadAlternateScreen() {
 	fmt.Print("\033[?1049l")
 }
 
-func Print(v interface{}) {
+func Print(v ...interface{}) {
 	fmt.Print(v, "\r")
 }
 
-func Println(v interface{}) {
+func Println(v ...interface{}) {
 	fmt.Println(v, "\r")
 }
 
