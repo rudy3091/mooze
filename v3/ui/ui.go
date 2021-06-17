@@ -13,11 +13,13 @@ func UnloadAlternateScreen() {
 }
 
 func Print(v ...interface{}) {
-	fmt.Print(v, "\r")
+	fmt.Print(v...)
+	fmt.Print("\r")
 }
 
 func Println(v ...interface{}) {
-	fmt.Println(v, "\r")
+	fmt.Print(v...)
+	fmt.Print("\r\n")
 }
 
 func KeyBindings() {
