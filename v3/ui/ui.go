@@ -5,7 +5,7 @@ import (
 )
 
 func LoadAlternateScreen() {
-	fmt.Print("\033[?1049h\033H")
+	fmt.Print("\033[?1049h\033[H")
 }
 
 func UnloadAlternateScreen() {
