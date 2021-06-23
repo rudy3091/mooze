@@ -1,1 +1,60 @@
 package event
+
+import (
+	"syscall"
+)
+
+type Key int
+
+const (
+	KeyA = iota
+	KeyB
+	KeyC
+)
+
+type Event struct {
+	T   Key
+	Buf []byte
+}
+
+type Buffer []byte
+
+// length returns index of last non-zero
+// element of the buffer
+func (b Buffer) length() int {
+	i := len(b) - 1
+	for i >= 0 {
+		if b[i] != 0 {
+			return i
+		}
+	}
+	return 0 /* empty buffer */
+}
+
+// isEsc checks the buffer indicates ESC key input
+func (b Buffer) isEsc() bool {
+	if b.length() == 1 && b[0] == 27 {
+		return true
+	} else {
+		return false
+	}
+}
+
+// hasEscape checks the buffer has escape code
+// e.g. true for ArrowUp ([27 91 65])
+func (b Buffer) hasEscape() bool {
+	if len(b) != 0 && b[0] == 27 {
+		return true
+	} else {
+		return false
+	}
+}
+
+func HandleKeyPress(fd int, ch chan Event) {
+	buf := make([]byte, 10)
+	syscall.Read(fd, buf)
+	ch <- Event{
+		T:   KeyA,
+		Buf: buf,
+	}
+}
