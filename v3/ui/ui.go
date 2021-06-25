@@ -22,7 +22,7 @@ func Println(v ...interface{}) {
 	fmt.Print("\r\n")
 }
 
-func KeyBindings() {
+func ShowKeyBindings() {
 	main := Fg(
 		"Mooze: Yet another REST api test tool for command-line users",
 		MAGENTA)
