@@ -7,9 +7,16 @@ import (
 type Key int
 
 const (
-	KeyA = iota
+	_ = iota
+
+	KeyU
+	KeyM
 	KeyB
-	KeyC
+	KeyH
+
+	KeyR
+	KeyS
+	KeyQ
 )
 
 type Event struct {
@@ -54,7 +61,7 @@ func HandleKeyPress(fd int, ch chan Event) {
 	buf := make([]byte, 10)
 	syscall.Read(fd, buf)
 	ch <- Event{
-		T:   KeyA,
+		T:   KeyS,
 		Buf: buf,
 	}
 }
