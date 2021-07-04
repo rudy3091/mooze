@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"strconv"
 )
 
 func LoadAlternateScreen() {
@@ -38,4 +39,11 @@ func ShowKeyBindings() {
 	Println("- " + Fg("r", RED) + "efresh screen")
 	Println("- " + Fg("s", RED) + "end request")
 	Println("- " + Fg("q", RED) + "uit")
+}
+
+// x: vertical, y: horizontal
+func MoveCursorTo(x, y int) {
+	_x := strconv.Itoa(x)
+	_y := strconv.Itoa(y)
+	fmt.Print("\x1b[" + _x + ";" + _y + "H")
 }
