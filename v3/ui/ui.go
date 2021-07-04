@@ -13,11 +13,13 @@ func UnloadAlternateScreen() {
 	fmt.Print("\x1b[?1049l")
 }
 
+// prints everything and append carriage return
 func Print(v ...interface{}) {
 	fmt.Print(v...)
 	fmt.Print("\r")
 }
 
+// prints everything and append carriage return and newline
 func Println(v ...interface{}) {
 	fmt.Print(v...)
 	fmt.Print("\r\n")
