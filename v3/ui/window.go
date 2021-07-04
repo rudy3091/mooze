@@ -9,10 +9,10 @@ type Window struct {
 	content       []string
 	isTransparent bool
 
-	// frameVertical    rune
-	// frameHorizontal  rune
-	// frameTopLeft     rune
-	// frameTopRight    rune
-	// frameBottomLeft  rune
-	// frameBottomRight rune
+	frameVertical    string
+	frameHorizontal  string
+	frameTopLeft     string
+	frameTopRight    string
+	frameBottomLeft  string
+	frameBottomRight string
 }
