@@ -5,11 +5,11 @@ import (
 )
 
 func LoadAlternateScreen() {
-	fmt.Print("\033[?1049h\033[H")
+	fmt.Print("\x1b[?1049h\033[H")
 }
 
 func UnloadAlternateScreen() {
-	fmt.Print("\033[?1049l")
+	fmt.Print("\x1b[?1049l")
 }
 
 func Print(v ...interface{}) {
