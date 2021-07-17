@@ -17,6 +17,17 @@ type Window struct {
 	frameTopRight    string
 	frameBottomLeft  string
 	frameBottomRight string
+
+	Meta *WindowMeta /* window metadata */
+}
+
+// WindowMeta includes information about window manipulation
+type WindowMeta struct {
+	focusable  bool /* if window is focusable */
+	focused    bool /* if window is focused */
+	selectable bool /* if window has selectable items */
+	cursor     int  /* index of cursor */
+	page       int  /* current page number if content is paged */
 }
 
 func NewWindow(x, y, w, h int) *Window {
@@ -34,6 +45,14 @@ func NewWindow(x, y, w, h int) *Window {
 		frameTopRight:    "\u2510",
 		frameBottomLeft:  "\u2514",
 		frameBottomRight: "\u2518",
+
+		Meta: &WindowMeta{
+			focusable:  false,
+			focused:    false,
+			selectable: false,
+			cursor:     0, /* 0-based index */
+			page:       0,
+		},
 	}
 }
 
