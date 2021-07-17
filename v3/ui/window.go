@@ -78,6 +78,11 @@ func (w *Window) Content(content []string) *Window {
 	return w
 }
 
+func (w *Window) Append(line string) *Window {
+	w.content = append(w.content, line)
+	return w
+}
+
 func (w *Window) Fill() {
 	MoveCursorTo(w.x+1, w.y+1)
 	for i, con := range w.content {
