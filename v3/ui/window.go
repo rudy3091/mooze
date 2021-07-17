@@ -19,12 +19,12 @@ type Window struct {
 	frameBottomRight string
 }
 
-func NewWindow() *Window {
+func NewWindow(x, y, w, h int) *Window {
 	return &Window{
-		x:       0,
-		y:       0,
-		w:       20,
-		h:       20,
+		x:       x,
+		y:       y,
+		w:       w,
+		h:       h,
 		title:   "test",
 		content: []string{"test"},
 
@@ -34,6 +34,27 @@ func NewWindow() *Window {
 		frameTopRight:    "\u2510",
 		frameBottomLeft:  "\u2514",
 		frameBottomRight: "\u2518",
+	}
+}
+
+func (w *Window) Title(title string) *Window {
+	w.title = title
+	return w
+}
+
+func (w *Window) Content(content []string) *Window {
+	w.content = content
+	return w
+}
+
+func (w *Window) Fill() {
+	MoveCursorTo(w.x+1, w.y+1)
+	for i, con := range w.content {
+		if i+1 >= w.h {
+			break
+		}
+		fmt.Print(con)
+		MoveCursorTo(w.x+i+2, w.y+1)
 	}
 }
 
@@ -76,4 +97,6 @@ func (w *Window) Render() {
 	// bottom right
 	MoveCursorTo(w.x+w.h, w.y+w.w)
 	fmt.Print(w.frameBottomRight)
+
+	w.Fill()
 }
