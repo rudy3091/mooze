@@ -2,6 +2,8 @@ package ui
 
 import "fmt"
 
+var WindowStore = []*Window{}
+
 type Window struct {
 	x             int
 	y             int
@@ -31,7 +33,7 @@ type WindowMeta struct {
 }
 
 func NewWindow(x, y, w, h int) *Window {
-	return &Window{
+	win := &Window{
 		x:       x,
 		y:       y,
 		w:       w,
@@ -54,6 +56,9 @@ func NewWindow(x, y, w, h int) *Window {
 			page:       0,
 		},
 	}
+
+	WindowStore = append(WindowStore, win)
+	return win
 }
 
 func (w *Window) Title(title string) *Window {
