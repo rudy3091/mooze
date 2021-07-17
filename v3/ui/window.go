@@ -1,6 +1,9 @@
 package ui
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 var WindowStore = []*Window{}
 
@@ -32,13 +35,17 @@ type WindowMeta struct {
 	page       int  /* current page number if content is paged */
 }
 
-func NewWindow(x, y, w, h int) *Window {
+// x: vertical coordinate of window top-left point
+// y: horizontal coordinate of window top-left point
+// h: window's vertical length (including frame)
+// w: window's horizontal length (including frame)
+func NewWindow(x, y, h, w int) *Window {
 	win := &Window{
 		x:       x,
 		y:       y,
-		w:       w,
-		h:       h,
-		title:   "test",
+		w:       w - 1,
+		h:       h - 1,
+		title:   "",
 		content: []string{"test"},
 
 		frameVertical:    "\u2500",
@@ -75,9 +82,23 @@ func (w *Window) Fill() {
 	MoveCursorTo(w.x+1, w.y+1)
 	for i, con := range w.content {
 		if i+1 >= w.h {
+			MoveCursorTo(w.x+i, w.y+1)
+			fmt.Print(strings.Repeat(" ", w.w-1))
+
+			// replace this to display page number
+			// and others when pagination ready
+			MoveCursorTo(w.x+i, w.y+1)
+			fmt.Print("...")
 			break
 		}
-		fmt.Print(con)
+
+		if len(con) >= w.w {
+			fmt.Print(con[0 : w.w-3])
+			fmt.Print("..")
+		} else {
+			fmt.Print(con)
+		}
+
 		MoveCursorTo(w.x+i+2, w.y+1)
 	}
 }
@@ -122,5 +143,12 @@ func (w *Window) Render() {
 	MoveCursorTo(w.x+w.h, w.y+w.w)
 	fmt.Print(w.frameBottomRight)
 
+	// Render Title
+	if w.title != "" && len(w.title) < w.w {
+		MoveCursorTo(w.x, w.y+1)
+		fmt.Print(w.title)
+	}
+
+	// Render Content
 	w.Fill()
 }
