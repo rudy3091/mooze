@@ -49,3 +49,11 @@ func MoveCursorTo(x, y int) {
 	_y := strconv.Itoa(y)
 	fmt.Print("\x1b[" + _x + ";" + _y + "H")
 }
+
+func HideCursor() {
+	fmt.Print("\x1b[?25l")
+}
+
+func ShowCursor() {
+	fmt.Print("\x1b[?25h")
+}
