@@ -26,12 +26,12 @@ func RotateFocus() {
 	}
 
 	WindowStore[idx].Meta.focused = false
+	WindowStore[idx].Render()
 	for i := (idx + 1) % l; ; i = (i + 1) % l {
 		if WindowStore[i].Meta.focusable {
 			WindowStore[i].Meta.focused = true
+			WindowStore[i].Render()
 			break
 		}
 	}
-
-	ReloadAll()
 }
