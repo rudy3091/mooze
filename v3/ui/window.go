@@ -56,7 +56,7 @@ func NewWindow(x, y, h, w int) *Window {
 		frameBottomRight: "\u2518",
 
 		Meta: &WindowMeta{
-			focusable:  false,
+			focusable:  true,
 			focused:    false,
 			selectable: false,
 			cursor:     0, /* 0-based index */
@@ -83,6 +83,13 @@ func (w *Window) Append(line string) *Window {
 	return w
 }
 
+func (w *Window) Focus() *Window {
+	if w.Meta.focusable {
+		w.Meta.focused = true
+	}
+	return w
+}
+
 func (w *Window) Fill() {
 	MoveCursorTo(w.x+1, w.y+1)
 	for i, con := range w.content {
@@ -97,11 +104,19 @@ func (w *Window) Fill() {
 			break
 		}
 
+		if w.Meta.focused && w.Meta.cursor == i {
+			SetFg(BLACK)
+			SetBg(CYAN)
+		} else if w.Meta.focused {
+			fmt.Print(reset)
+			SetFg(CYAN)
+		}
+
 		if len(con) >= w.w {
 			fmt.Print(con[0 : w.w-3])
 			fmt.Print("..")
 		} else {
-			fmt.Print(con)
+			fmt.Print(con + strings.Repeat(" ", w.w-1-len(con)))
 		}
 
 		MoveCursorTo(w.x+i+2, w.y+1)
@@ -109,6 +124,11 @@ func (w *Window) Fill() {
 }
 
 func (w *Window) Render() {
+	if w.Meta.focused {
+		SetFg(CYAN)
+	}
+	defer fmt.Print(reset)
+
 	// upper horizontal
 	MoveCursorTo(w.x, w.y)
 	for i := 0; i < w.w; i++ {
@@ -156,4 +176,10 @@ func (w *Window) Render() {
 
 	// Render Content
 	w.Fill()
+}
+
+func ReloadAll() {
+	for _, w := range WindowStore {
+		w.Render()
+	}
 }
