@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -27,4 +28,12 @@ func Fg(s string, c ansiColor) string {
 
 func Bg(s string, c ansiColor) string {
 	return keyEscape + "4" + strconv.Itoa(c) + s + reset
+}
+
+func SetFg(c ansiColor) {
+	fmt.Print(keyEscape + "3" + strconv.Itoa(c) + "m")
+}
+
+func SetBg(c ansiColor) {
+	fmt.Print(keyEscape + "4" + strconv.Itoa(c) + "m")
 }
