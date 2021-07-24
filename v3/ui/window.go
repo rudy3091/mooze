@@ -46,7 +46,7 @@ func NewWindow(x, y, h, w int) *Window {
 		w:       w - 1,
 		h:       h - 1,
 		title:   "",
-		content: []string{"test"},
+		content: []string{},
 
 		frameVertical:    "\u2500",
 		frameHorizontal:  "\u2502",
@@ -87,6 +87,16 @@ func (w *Window) Focus() *Window {
 	if w.Meta.focusable {
 		w.Meta.focused = true
 	}
+	return w
+}
+
+func (w *Window) Disable() *Window {
+	w.Meta.focusable = false
+	return w
+}
+
+func (w *Window) Enable() *Window {
+	w.Meta.focusable = true
 	return w
 }
 
