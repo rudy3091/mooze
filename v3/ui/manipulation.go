@@ -36,7 +36,7 @@ func RotateFocus() {
 	}
 }
 
-func NextItem() {
+func NextItem(lens *Window) {
 	idx, err := getCurrentFocus()
 	if err != nil {
 		// handle error
@@ -48,10 +48,12 @@ func NextItem() {
 	if w.Meta.cursor < len(w.content)-1 {
 		w.Meta.cursor += 1
 	}
+	lens.Content([]string{w.content[w.Meta.cursor]})
+	lens.Render()
 	w.Render()
 }
 
-func PrevItem() {
+func PrevItem(lens *Window) {
 	idx, err := getCurrentFocus()
 	if err != nil {
 		// handle error
@@ -63,5 +65,7 @@ func PrevItem() {
 	if w.Meta.cursor > 0 {
 		w.Meta.cursor -= 1
 	}
+	lens.Content([]string{w.content[w.Meta.cursor]})
+	lens.Render()
 	w.Render()
 }
