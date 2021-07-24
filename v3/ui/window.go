@@ -118,9 +118,14 @@ func (w *Window) Append(line string) *Window {
 }
 
 func (w *Window) Focus() *Window {
-	if w.Meta.focusable {
-		w.Meta.focused = true
+	if !w.Meta.focusable {
+		return w
 	}
+
+	for _, win := range WindowStore {
+		win.Meta.focused = false
+	}
+	w.Meta.focused = true
 	return w
 }
 
