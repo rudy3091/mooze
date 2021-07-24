@@ -61,7 +61,7 @@ func NextItem() {
 	}
 
 	w := WindowStore[idx]
-	if w.Meta.page*(w.h-2)+w.Meta.cursor < len(w.content)-1 {
+	if w.Meta.page*(w.h-2)+w.Meta.cursor < len(w.content) {
 		w.Meta.cursor += 1
 	}
 
