@@ -35,3 +35,29 @@ func RotateFocus() {
 		}
 	}
 }
+
+func NextItem() {
+	idx, err := getCurrentFocus()
+	if err != nil {
+		// handle error
+		MoveCursorTo(1, 1)
+		fmt.Print("something gone wrong")
+	}
+
+	w := WindowStore[idx]
+	w.Meta.cursor += 1
+	w.Render()
+}
+
+func PrevItem() {
+	idx, err := getCurrentFocus()
+	if err != nil {
+		// handle error
+		MoveCursorTo(1, 1)
+		fmt.Print("something gone wrong")
+	}
+
+	w := WindowStore[idx]
+	w.Meta.cursor -= 1
+	w.Render()
+}
