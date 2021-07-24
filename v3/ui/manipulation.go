@@ -45,7 +45,9 @@ func NextItem() {
 	}
 
 	w := WindowStore[idx]
-	w.Meta.cursor += 1
+	if w.Meta.cursor < len(w.content)-1 {
+		w.Meta.cursor += 1
+	}
 	w.Render()
 }
 
@@ -58,6 +60,8 @@ func PrevItem() {
 	}
 
 	w := WindowStore[idx]
-	w.Meta.cursor -= 1
+	if w.Meta.cursor > 0 {
+		w.Meta.cursor -= 1
+	}
 	w.Render()
 }
