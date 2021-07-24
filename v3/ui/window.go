@@ -6,8 +6,10 @@ import (
 )
 
 var WindowStore = []*Window{}
+var windowIndex uint64 = 0
 
 type Window struct {
+	id            uint64
 	x             int
 	y             int
 	w             int
@@ -40,7 +42,9 @@ type WindowMeta struct {
 // h: window's vertical length (including frame)
 // w: window's horizontal length (including frame)
 func NewWindow(x, y, h, w int) *Window {
+	windowIndex += 1
 	win := &Window{
+		id:      windowIndex,
 		x:       x,
 		y:       y,
 		w:       w - 1,
