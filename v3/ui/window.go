@@ -68,6 +68,17 @@ func NewWindow(x, y, h, w int) *Window {
 	return win
 }
 
+func NewRoundWindow(x, y, h, w int) *Window {
+	win := NewWindow(x, y, h, w)
+	win.frameTopLeft = "\u256d"
+	win.frameTopRight = "\u256e"
+	win.frameBottomLeft = "\u2570"
+	win.frameBottomRight = "\u256f"
+
+	WindowStore = append(WindowStore, win)
+	return win
+}
+
 func (w *Window) Title(title string) *Window {
 	w.title = title
 	return w
