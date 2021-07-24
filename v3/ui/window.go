@@ -35,6 +35,7 @@ type WindowMeta struct {
 	selectable bool /* if window has selectable items */
 	cursor     int  /* index of cursor */
 	page       int  /* current page number if content is paged */
+	onSelect   []func()
 }
 
 // x: vertical coordinate of window top-left point
@@ -62,7 +63,7 @@ func NewWindow(x, y, h, w int) *Window {
 		Meta: &WindowMeta{
 			focusable:  true,
 			focused:    false,
-			selectable: false,
+			selectable: true,
 			cursor:     0, /* 0-based index */
 			page:       0,
 		},
@@ -100,6 +101,22 @@ func (w *Window) Close() {
 			return
 		}
 	}
+}
+
+func (w *Window) OnSelect(fns []func()) *Window {
+	w.Meta.onSelect = fns
+	return w
+}
+
+func Select() {
+	idx, _ := getCurrentFocus()
+	w := WindowStore[idx]
+	if !w.Meta.selectable || w.Meta.cursor >= len(w.Meta.onSelect) {
+		return
+	}
+
+	fn := w.Meta.page*(w.h-2) + w.Meta.cursor
+	w.Meta.onSelect[fn]()
 }
 
 func (w *Window) Title(title string) *Window {
