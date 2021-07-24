@@ -79,3 +79,45 @@ func PrevItem() {
 	lens.Render()
 	w.Render()
 }
+
+func ScrollHalfDown() {
+	idx, err := getCurrentFocus()
+	if err != nil {
+		// handle error
+		MoveCursorTo(1, 1)
+		fmt.Print("something gone wrong")
+	}
+
+	w := WindowStore[idx]
+	if w.Meta.cursor+w.h/2 < len(w.content) {
+		w.Meta.cursor += w.h/2 - 1
+	} else {
+		w.Meta.cursor = len(w.content) - 1
+	}
+
+	lens := LensWindow
+	lens.Content([]string{w.content[w.Meta.cursor]})
+	lens.Render()
+	w.Render()
+}
+
+func ScrollHalfUp() {
+	idx, err := getCurrentFocus()
+	if err != nil {
+		// handle error
+		MoveCursorTo(1, 1)
+		fmt.Print("something gone wrong")
+	}
+
+	w := WindowStore[idx]
+	if w.Meta.cursor-w.h/2-1 > 0 {
+		w.Meta.cursor -= w.h/2 - 1
+	} else {
+		w.Meta.cursor = 0
+	}
+
+	lens := LensWindow
+	lens.Content([]string{w.content[w.Meta.cursor]})
+	lens.Render()
+	w.Render()
+}
