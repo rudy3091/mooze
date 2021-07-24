@@ -83,6 +83,25 @@ func NewRoundWindow(x, y, h, w int) *Window {
 	return win
 }
 
+func (w *Window) Clear() {
+	for i := 0; i < w.h+1; i++ {
+		MoveCursorTo(w.x+i, w.y)
+		for j := 0; j < w.w+1; j++ {
+			fmt.Print(" ")
+		}
+	}
+}
+
+func (w *Window) Close() {
+	for i, win := range WindowStore {
+		if win.id == w.id {
+			WindowStore = append(WindowStore[:i], WindowStore[i+1:]...)
+			w.Clear()
+			return
+		}
+	}
+}
+
 func (w *Window) Title(title string) *Window {
 	w.title = title
 	return w
