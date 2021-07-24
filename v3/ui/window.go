@@ -84,10 +84,19 @@ func NewRoundWindow(x, y, h, w int) *Window {
 	return win
 }
 
-func (w *Window) Clear() {
+func (w *Window) ClearWithFrame() {
 	for i := 0; i < w.h+1; i++ {
 		MoveCursorTo(w.x+i, w.y)
 		for j := 0; j < w.w+1; j++ {
+			fmt.Print(" ")
+		}
+	}
+}
+
+func (w *Window) Clear() {
+	for i := 1; i < w.h; i++ {
+		MoveCursorTo(w.x+i, w.y+1)
+		for j := 1; j < w.w; j++ {
 			fmt.Print(" ")
 		}
 	}
@@ -97,7 +106,7 @@ func (w *Window) Close() {
 	for i, win := range WindowStore {
 		if win.id == w.id {
 			WindowStore = append(WindowStore[:i], WindowStore[i+1:]...)
-			w.Clear()
+			w.ClearWithFrame()
 			return
 		}
 	}
@@ -158,7 +167,16 @@ func (w *Window) Enable() *Window {
 
 func (w *Window) Fill() {
 	MoveCursorTo(w.x+1, w.y+1)
-	for i, con := range w.content {
+	pageStart := w.Meta.page * (w.h - 2)
+	if w.Meta.page != 0 {
+		fmt.Print("...")
+	}
+
+	for i, con := range w.content[pageStart:] {
+		if w.Meta.page != 0 {
+			i += 1
+		}
+
 		if i+1 >= w.h {
 			MoveCursorTo(w.x+i, w.y+1)
 			fmt.Print(strings.Repeat(" ", w.w-1))
@@ -170,6 +188,7 @@ func (w *Window) Fill() {
 			break
 		}
 
+		MoveCursorTo(w.x+i+1, w.y+1)
 		if w.Meta.focused && w.Meta.cursor == i {
 			SetFg(BLACK)
 			SetBg(CYAN)

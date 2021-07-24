@@ -7,6 +7,16 @@ import (
 
 var LensWindow *Window
 
+// TODO: remove this (for debug)
+func GetCurrentFocus() (int, error) {
+	for i, w := range WindowStore {
+		if w.Meta.focused {
+			return i, nil
+		}
+	}
+	return -1, errors.New("cannot find focused window")
+}
+
 func getCurrentFocus() (int, error) {
 	for i, w := range WindowStore {
 		if w.Meta.focused {
@@ -51,8 +61,14 @@ func NextItem() {
 	}
 
 	w := WindowStore[idx]
-	if w.Meta.cursor < len(w.content)-1 {
+	if w.Meta.page*(w.h-2)+w.Meta.cursor < len(w.content)-1 {
 		w.Meta.cursor += 1
+	}
+
+	if w.Meta.cursor == w.h-2 {
+		w.Meta.cursor = 1
+		w.Meta.page += 1
+		w.Clear()
 	}
 
 	lens := LensWindow
@@ -70,6 +86,12 @@ func PrevItem() {
 	}
 
 	w := WindowStore[idx]
+	if w.Meta.cursor <= 1 && w.Meta.page != 0 {
+		w.Meta.cursor = w.h - 2
+		w.Meta.page -= 1
+		w.Clear()
+	}
+
 	if w.Meta.cursor > 0 {
 		w.Meta.cursor -= 1
 	}
