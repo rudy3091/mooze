@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -258,6 +259,10 @@ func (w *Window) Render() {
 		MoveCursorTo(w.x, w.y+1)
 		fmt.Print(w.title)
 	}
+
+	pageNumToStr := strconv.Itoa(w.Meta.page + 1)
+	MoveCursorTo(w.x+w.h, w.y+w.w-len(pageNumToStr)-5)
+	fmt.Println(pageNumToStr + " page")
 
 	// Render Content
 	w.Fill()
