@@ -262,7 +262,8 @@ func (w *Window) Render() {
 
 	pageNumToStr := strconv.Itoa(w.Meta.page + 1)
 	MoveCursorTo(w.x+w.h, w.y+w.w-len(pageNumToStr)-5)
-	fmt.Println(pageNumToStr + " page")
+	fmt.Println(pageNumToStr + " of " +
+		strconv.Itoa(len(w.content)/(w.h-1)+1))
 
 	// Render Content
 	w.Fill()
