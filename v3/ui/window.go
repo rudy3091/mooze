@@ -156,6 +156,11 @@ func (w *Window) Focus() *Window {
 	return w
 }
 
+// returns absolute cursor position index
+func (w *Window) getOverallCursorIndex() int {
+	return (w.h-2)*w.Meta.page + w.Meta.cursor
+}
+
 func (w *Window) getPages() int {
 	return len(w.content)/(w.h-1) + 1
 }
