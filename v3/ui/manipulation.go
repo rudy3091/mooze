@@ -33,7 +33,7 @@ func RotateFocus() {
 	if err != nil {
 		// handle error
 		MoveCursorTo(1, 1)
-		fmt.Print("something gone wrong")
+		fmt.Print(err)
 		return
 	}
 
@@ -57,7 +57,7 @@ func NextItem() {
 	if err != nil {
 		// handle error
 		MoveCursorTo(1, 1)
-		fmt.Print("something gone wrong")
+		fmt.Print(err)
 	}
 
 	w := WindowStore[idx]
@@ -82,7 +82,7 @@ func PrevItem() {
 	if err != nil {
 		// handle error
 		MoveCursorTo(1, 1)
-		fmt.Print("something gone wrong")
+		fmt.Print(err)
 	}
 
 	w := WindowStore[idx]
@@ -107,7 +107,7 @@ func ScrollHalfDown() {
 	if err != nil {
 		// handle error
 		MoveCursorTo(1, 1)
-		fmt.Print("something gone wrong")
+		fmt.Print(err)
 	}
 
 	w := WindowStore[idx]
@@ -128,7 +128,7 @@ func ScrollHalfUp() {
 	if err != nil {
 		// handle error
 		MoveCursorTo(1, 1)
-		fmt.Print("something gone wrong")
+		fmt.Print(err)
 	}
 
 	w := WindowStore[idx]
