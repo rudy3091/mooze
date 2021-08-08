@@ -185,6 +185,12 @@ func (w *Window) Resize(height, width int) *Window {
 	return w
 }
 
+func (w *Window) Relocate(x, y int) *Window {
+	w.x = x
+	w.y = y
+	return w
+}
+
 func (w *Window) Fill() {
 	MoveCursorTo(w.x+1, w.y+1)
 	pageStart := w.Meta.page * (w.h - 1)
