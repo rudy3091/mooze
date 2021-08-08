@@ -89,12 +89,14 @@ func (w *Window) focusPrev() {
 func (w *Window) focusNextPage() {
 	if w.Meta.page < w.getPages()-1 {
 		w.Meta.page += 1
+		w.Meta.cursor = 0
 	}
 }
 
 func (w *Window) focusPrevPage() {
 	if w.Meta.page != 0 {
 		w.Meta.page -= 1
+		w.Meta.cursor = 0
 	}
 }
 
