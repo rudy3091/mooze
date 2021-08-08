@@ -52,6 +52,40 @@ func RotateFocus() {
 	}
 }
 
+func (w *Window) focusNext() {
+	// if next item index exceeds window boundary
+	// increase page index
+	if w.Meta.cursor+1 > w.h-2 && w.Meta.page+1 < w.getPages() {
+		w.Meta.cursor = 0
+		w.Meta.page += 1
+		// should redraw
+		w.Clear()
+		w.Render()
+	} else if w.getOverallCursorIndex()+1 >= len(w.content) {
+		// do nothing if there's no more entries
+		return
+	} else {
+		w.Meta.cursor += 1
+	}
+}
+
+func (w *Window) focusPrev() {
+	// if previous item index exceeds window boundary
+	// increase page index
+	if w.Meta.cursor == 0 && w.Meta.page != 0 {
+		w.Meta.cursor = w.h - 2
+		w.Meta.page -= 1
+		// should redraw
+		w.Clear()
+		w.Render()
+	} else if w.getOverallCursorIndex() == 0 {
+		// do nothing if cursor is on first entry
+		return
+	} else {
+		w.Meta.cursor -= 1
+	}
+}
+
 func NextItem() {
 	idx, err := getCurrentFocus()
 	if err != nil {
@@ -61,18 +95,10 @@ func NextItem() {
 	}
 
 	w := WindowStore[idx]
-	if w.Meta.page*(w.h-2)+w.Meta.cursor < len(w.content) {
-		w.Meta.cursor += 1
-	}
-
-	if w.Meta.cursor == w.h-2 {
-		w.Meta.cursor = 1
-		w.Meta.page += 1
-		w.Clear()
-	}
+	w.focusNext()
 
 	lens := LensWindow
-	lens.Content([]string{w.content[w.Meta.cursor]})
+	lens.Content([]string{w.content[w.getOverallCursorIndex()]})
 	lens.Render()
 	w.Render()
 }
@@ -86,18 +112,10 @@ func PrevItem() {
 	}
 
 	w := WindowStore[idx]
-	if w.Meta.cursor <= 1 && w.Meta.page != 0 {
-		w.Meta.cursor = w.h - 2
-		w.Meta.page -= 1
-		w.Clear()
-	}
-
-	if w.Meta.cursor > 0 {
-		w.Meta.cursor -= 1
-	}
+	w.focusPrev()
 
 	lens := LensWindow
-	lens.Content([]string{w.content[w.Meta.cursor]})
+	lens.Content([]string{w.content[w.getOverallCursorIndex()]})
 	lens.Render()
 	w.Render()
 }
@@ -111,14 +129,16 @@ func ScrollHalfDown() {
 	}
 
 	w := WindowStore[idx]
-	if w.Meta.cursor+w.h/2 < len(w.content) {
+	if w.Meta.page == w.getPages()-1 {
+		w.Meta.cursor = len(w.content)%(w.h-1) - 1
+	} else if w.Meta.cursor <= (w.h-2)/2 {
 		w.Meta.cursor += w.h/2 - 1
 	} else {
-		w.Meta.cursor = len(w.content) - 1
+		w.Meta.cursor = w.h - 2
 	}
 
 	lens := LensWindow
-	lens.Content([]string{w.content[w.Meta.cursor]})
+	lens.Content([]string{w.content[w.getOverallCursorIndex()]})
 	lens.Render()
 	w.Render()
 }

@@ -158,11 +158,15 @@ func (w *Window) Focus() *Window {
 
 // returns absolute cursor position index
 func (w *Window) getOverallCursorIndex() int {
-	return (w.h-2)*w.Meta.page + w.Meta.cursor
+	return (w.h-1)*w.Meta.page + w.Meta.cursor
 }
 
 func (w *Window) getPages() int {
-	return len(w.content)/(w.h-1) + 1
+	if w.h != 2 {
+		return len(w.content)/(w.h-1) + 1
+	} else {
+		return len(w.content) / (w.h - 1)
+	}
 }
 
 func (w *Window) Disable() *Window {
@@ -177,24 +181,12 @@ func (w *Window) Enable() *Window {
 
 func (w *Window) Fill() {
 	MoveCursorTo(w.x+1, w.y+1)
-	pageStart := w.Meta.page * (w.h - 2)
-	if w.Meta.page != 0 {
-		fmt.Print("...")
-	}
+	pageStart := w.Meta.page * (w.h - 1)
 
 	for i, con := range w.content[pageStart:] {
-		if w.Meta.page != 0 {
-			i += 1
-		}
-
 		if i+1 >= w.h {
-			MoveCursorTo(w.x+i, w.y+1)
-			fmt.Print(strings.Repeat(" ", w.w-1))
-
-			// replace this to display page number
-			// and others when pagination ready
-			MoveCursorTo(w.x+i, w.y+1)
-			fmt.Print("...")
+			// MoveCursorTo(w.x+i, w.y+1)
+			// fmt.Print(strings.Repeat(" ", w.w-1))
 			break
 		}
 
