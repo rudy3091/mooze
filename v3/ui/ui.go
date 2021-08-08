@@ -57,3 +57,7 @@ func HideCursor() {
 func ShowCursor() {
 	fmt.Print("\x1b[?25h")
 }
+
+func ClearScreen() {
+	fmt.Print("\x1b[2J")
+}
