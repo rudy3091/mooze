@@ -86,6 +86,18 @@ func (w *Window) focusPrev() {
 	}
 }
 
+func (w *Window) focusNextPage() {
+	if w.Meta.page < w.getPages() {
+		w.Meta.page += 1
+	}
+}
+
+func (w *Window) focusPrevPage() {
+	if w.Meta.page != 0 {
+		w.Meta.page -= 1
+	}
+}
+
 func NextItem() {
 	idx, err := getCurrentFocus()
 	if err != nil {
