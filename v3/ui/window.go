@@ -156,6 +156,10 @@ func (w *Window) Focus() *Window {
 	return w
 }
 
+func (w *Window) getPages() int {
+	return len(w.content)/(w.h-1) + 1
+}
+
 func (w *Window) Disable() *Window {
 	w.Meta.focusable = false
 	return w
@@ -263,7 +267,7 @@ func (w *Window) Render() {
 	pageNumToStr := strconv.Itoa(w.Meta.page + 1)
 	MoveCursorTo(w.x+w.h, w.y+w.w-len(pageNumToStr)-5)
 	fmt.Println(pageNumToStr + " of " +
-		strconv.Itoa(len(w.content)/(w.h-1)+1))
+		strconv.Itoa(w.getPages()))
 
 	// Render Content
 	w.Fill()
