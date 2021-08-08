@@ -87,7 +87,7 @@ func (w *Window) focusPrev() {
 }
 
 func (w *Window) focusNextPage() {
-	if w.Meta.page < w.getPages() {
+	if w.Meta.page < w.getPages()-1 {
 		w.Meta.page += 1
 	}
 }
@@ -129,6 +129,42 @@ func PrevItem() {
 	lens := LensWindow
 	lens.Content([]string{w.content[w.getOverallCursorIndex()]})
 	lens.Render()
+	w.Render()
+}
+
+func NextPage() {
+	idx, err := getCurrentFocus()
+	if err != nil {
+		// handle error
+		MoveCursorTo(1, 1)
+		fmt.Print(err)
+	}
+
+	w := WindowStore[idx]
+	w.focusNextPage()
+
+	lens := LensWindow
+	lens.Content([]string{w.content[w.getOverallCursorIndex()]})
+	lens.Render()
+	w.Clear()
+	w.Render()
+}
+
+func PrevPage() {
+	idx, err := getCurrentFocus()
+	if err != nil {
+		// handle error
+		MoveCursorTo(1, 1)
+		fmt.Print(err)
+	}
+
+	w := WindowStore[idx]
+	w.focusPrevPage()
+
+	lens := LensWindow
+	lens.Content([]string{w.content[w.getOverallCursorIndex()]})
+	lens.Render()
+	w.Clear()
 	w.Render()
 }
 
