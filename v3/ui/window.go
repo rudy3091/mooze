@@ -179,6 +179,12 @@ func (w *Window) Enable() *Window {
 	return w
 }
 
+func (w *Window) Resize(height, width int) *Window {
+	w.h = height - 1
+	w.w = width - 1
+	return w
+}
+
 func (w *Window) Fill() {
 	MoveCursorTo(w.x+1, w.y+1)
 	pageStart := w.Meta.page * (w.h - 1)
