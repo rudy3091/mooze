@@ -213,3 +213,39 @@ func ScrollHalfUp() {
 	lens.Render()
 	w.Render()
 }
+
+func ScrollRight() {
+	idx, err := getCurrentFocus()
+	if err != nil {
+		// handle error
+		MoveCursorTo(1, 1)
+		fmt.Print(err)
+	}
+
+	w := WindowStore[idx]
+	if w.Meta.horizontalIndex > 0 {
+		w.Meta.horizontalIndex -= 1
+	}
+
+	lens := LensWindow
+	lens.Content([]string{w.content[w.Meta.cursor]})
+	lens.Render()
+	w.Render()
+}
+
+func ScrollLeft() {
+	idx, err := getCurrentFocus()
+	if err != nil {
+		// handle error
+		MoveCursorTo(1, 1)
+		fmt.Print(err)
+	}
+
+	w := WindowStore[idx]
+	w.Meta.horizontalIndex += 1
+
+	lens := LensWindow
+	lens.Content([]string{w.content[w.Meta.cursor]})
+	lens.Render()
+	w.Render()
+}
