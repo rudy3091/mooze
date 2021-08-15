@@ -224,11 +224,11 @@ func (w *Window) Fill() {
 
 		// window's horizontal scroll amount
 		hi := w.Meta.horizontalIndex
-		if len(con)+hi >= w.w {
+		if len(con)-hi >= w.w {
 			fmt.Print(con[hi : w.w-3+hi])
 			fmt.Print("..")
-		} else if hi > len(con) {
-			fmt.Print(strings.Repeat(" ", w.w-1-len(con)))
+		} else if hi >= len(con) {
+			fmt.Print(strings.Repeat(" ", w.w-1))
 		} else {
 			// pad whitespaces
 			fmt.Print(con[hi:] + strings.Repeat(" ", w.w-1-len(con)+hi))
