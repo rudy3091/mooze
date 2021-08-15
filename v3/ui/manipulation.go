@@ -214,7 +214,7 @@ func ScrollHalfUp() {
 	w.Render()
 }
 
-func ScrollRight() {
+func ScrollLeft() {
 	idx, err := getCurrentFocus()
 	if err != nil {
 		// handle error
@@ -233,7 +233,7 @@ func ScrollRight() {
 	w.Render()
 }
 
-func ScrollLeft() {
+func ScrollRight() {
 	idx, err := getCurrentFocus()
 	if err != nil {
 		// handle error
