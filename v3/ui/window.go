@@ -213,11 +213,25 @@ func (w *Window) Fill() {
 			SetFg(CYAN)
 		}
 
-		if len(con) >= w.w {
-			fmt.Print(con[0 : w.w-3])
+		// // former version without horizontal index
+		// if len(con) >= w.w {
+		// 	fmt.Print(con[0 : w.w-3])
+		// 	fmt.Print("..")
+		// } else {
+		// 	// pad whitespaces
+		// 	fmt.Print(con + strings.Repeat(" ", w.w-1-len(con)))
+		// }
+
+		// window's horizontal scroll amount
+		hi := w.Meta.horizontalIndex
+		if len(con)+hi >= w.w {
+			fmt.Print(con[hi : w.w-3+hi])
 			fmt.Print("..")
+		} else if hi > len(con) {
+			fmt.Print(strings.Repeat(" ", w.w-1-len(con)))
 		} else {
-			fmt.Print(con + strings.Repeat(" ", w.w-1-len(con)))
+			// pad whitespaces
+			fmt.Print(con[hi:] + strings.Repeat(" ", w.w-1-len(con)+hi))
 		}
 
 		MoveCursorTo(w.x+i+2, w.y+1)
