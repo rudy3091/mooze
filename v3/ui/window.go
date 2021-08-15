@@ -31,12 +31,13 @@ type Window struct {
 
 // WindowMeta includes information about window manipulation
 type WindowMeta struct {
-	focusable  bool /* if window is focusable */
-	focused    bool /* if window is focused */
-	selectable bool /* if window has selectable items */
-	cursor     int  /* index of cursor */
-	page       int  /* current page number if content is paged */
-	onSelect   []func()
+	focusable       bool /* if window is focusable */
+	focused         bool /* if window is focused */
+	selectable      bool /* if window has selectable items */
+	cursor          int  /* row index of cursor */
+	page            int  /* current page number if content is paged */
+	horizontalIndex int  /* content's horizontal scroll amount */
+	onSelect        []func()
 }
 
 // x: vertical coordinate of window top-left point
@@ -62,11 +63,12 @@ func NewWindow(x, y, h, w int) *Window {
 		frameBottomRight: "\u2518",
 
 		Meta: &WindowMeta{
-			focusable:  true,
-			focused:    false,
-			selectable: true,
-			cursor:     0, /* 0-based index */
-			page:       0,
+			focusable:       true,
+			focused:         false,
+			selectable:      true,
+			cursor:          0, /* 0-based index */
+			page:            0,
+			horizontalIndex: 0,
 		},
 	}
 
