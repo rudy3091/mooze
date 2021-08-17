@@ -15,6 +15,10 @@ var inputTerm = term.NewTerminal(struct {
 }{os.Stdin, os.Stdout}, "> ")
 
 func OpenPopup(tw, th int) string {
+	Input = true
+	defer func() { Input = false }()
+	defer ClosePopup()
+
 	width := tw / 2
 	height := th / 2
 
@@ -30,10 +34,6 @@ func OpenPopup(tw, th int) string {
 	PopupWindow = NewWindow(x, y, height, width).
 		Title("popup").
 		Content(content)
-
-	Input = true
-	defer func() { Input = false }()
-	defer ClosePopup()
 
 	PopupWindow.Clear()
 	PopupWindow.Render()
