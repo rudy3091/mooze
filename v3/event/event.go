@@ -2,6 +2,8 @@ package event
 
 import (
 	"syscall"
+
+	"github.com/rudy3091/mooze/v3/ui"
 )
 
 type Key int
@@ -60,10 +62,12 @@ func (b Buffer) hasEscape() bool {
 func EmitKeyEvent(fd int, ch chan Event) {
 	for {
 		buf := make([]byte, 10)
-		syscall.Read(fd, buf)
-		ch <- Event{
-			T:   KeyS,
-			Buf: buf,
+		if !ui.Input {
+			syscall.Read(fd, buf)
+			ch <- Event{
+				T:   KeyS,
+				Buf: buf,
+			}
 		}
 	}
 }
