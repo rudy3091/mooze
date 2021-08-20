@@ -16,14 +16,16 @@ type Request struct {
 	client     *http.Client
 }
 
+var RequestInfo *Request
+
 func NewRequest() *Request {
-	r := &Request{
+	RequestInfo = &Request{
 		url:     "https://api.github.com/users/rudy3091",
 		method:  "GET",
 		headers: map[string]string{},
 	}
-	r.SetHttpClient()
-	return r
+	RequestInfo.SetHttpClient()
+	return RequestInfo
 }
 
 func (r *Request) SetHttpClient() {
@@ -71,24 +73,55 @@ func (r *Request) ParseHeadersOptions() []string {
 	return s
 }
 
+// func (r *Request) Send() ([]byte, string, error) {
+// 	req, err := (func() (*http.Request, error) {
+// 		if r.method == "GET" {
+// 			req, err := http.NewRequest(r.method, r.url, nil)
+// 			return req, err
+// 		} else {
+// 			req, err := http.NewRequest(r.method, r.url, bytes.NewBufferString(r.body))
+// 			return req, err
+// 		}
+// 	})()
+// 	if err != nil {
+// 		return nil, "", err
+// 	}
+// 	for k, v := range r.headers {
+// 		req.Header.Add(k, v)
+// 	}
+
+// 	res, err := r.client.Do(req)
+
+// 	if err != nil {
+// 		return nil, "", err
+// 	}
+// 	defer res.Body.Close()
+
+// 	body, err := ioutil.ReadAll(res.Body)
+// 	if err != nil {
+// 		return nil, "", err
+// 	}
+// 	return body, res.Status, nil
+// }
+
 func (r *Request) Send() ([]byte, string, error) {
 	req, err := (func() (*http.Request, error) {
-		if r.method == "GET" {
-			req, err := http.NewRequest(r.method, r.url, nil)
+		if RequestInfo.method == "GET" {
+			req, err := http.NewRequest(RequestInfo.method, RequestInfo.url, nil)
 			return req, err
 		} else {
-			req, err := http.NewRequest(r.method, r.url, bytes.NewBufferString(r.body))
+			req, err := http.NewRequest(RequestInfo.method, RequestInfo.url, bytes.NewBufferString(RequestInfo.body))
 			return req, err
 		}
 	})()
 	if err != nil {
 		return nil, "", err
 	}
-	for k, v := range r.headers {
+	for k, v := range RequestInfo.headers {
 		req.Header.Add(k, v)
 	}
 
-	res, err := r.client.Do(req)
+	res, err := RequestInfo.client.Do(req)
 
 	if err != nil {
 		return nil, "", err
