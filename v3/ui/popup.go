@@ -14,16 +14,15 @@ var inputTerm = term.NewTerminal(struct {
 	io.Writer
 }{os.Stdin, os.Stdout}, "> ")
 
-func OpenPopup(tw, th int) string {
+func OpenPopup(tw, th int, f func(line string)) string {
 	Input = true
 	defer func() { Input = false }()
 	defer ClosePopup()
 
-	width := tw / 2
-	height := th / 2
+	width := tw * 4 / 5
 
-	x := th / 4
-	y := tw / 4
+	x := th/2 - 2
+	y := tw/10 + 2
 
 	// for i := 0; i < height-3; i++ {
 	// 	content = append(content, "")
@@ -31,7 +30,7 @@ func OpenPopup(tw, th int) string {
 	// content = append(content, "> _")
 
 	content := []string{}
-	PopupWindow = NewWindow(x, y, height, width).
+	PopupWindow = NewWindow(x, y, 3, width).
 		Title("popup").
 		Content(content)
 
@@ -39,7 +38,7 @@ func OpenPopup(tw, th int) string {
 	PopupWindow.Render()
 	PopupWindow.Focus()
 
-	MoveCursorTo(x+height-2, y+1)
+	MoveCursorTo(x+1, y+1)
 	ShowCursor()
 	defer HideCursor()
 
@@ -47,6 +46,7 @@ func OpenPopup(tw, th int) string {
 	if err != nil {
 		// handle error
 	}
+	f(line)
 	return line
 }
 
