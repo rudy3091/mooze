@@ -14,7 +14,7 @@ var inputTerm = term.NewTerminal(struct {
 	io.Writer
 }{os.Stdin, os.Stdout}, "> ")
 
-func OpenPopup(tw, th int, f func(line string)) string {
+func OpenPopup(title string, tw, th int, f func(line string)) string {
 	Input = true
 	defer func() { Input = false }()
 	defer ClosePopup()
@@ -31,7 +31,7 @@ func OpenPopup(tw, th int, f func(line string)) string {
 
 	content := []string{}
 	PopupWindow = NewWindow(x, y, 3, width).
-		Title("popup").
+		Title(title).
 		Content(content)
 
 	PopupWindow.Clear()
