@@ -121,14 +121,16 @@ func Run() {
 				}).Render()
 			},
 			func() {
-				ui.OpenPopup(width, height, func(url string) {
+				ui.OpenPopup("url", width, height, func(url string) {
 					RequestInfo.url = url
 				})
+				<-ev
 			},
 			func() {
-				ui.OpenPopup(width, height, func(method string) {
+				ui.OpenPopup("method", width, height, func(method string) {
 					RequestInfo.method = method
 				})
+				<-ev
 			},
 		}).
 		Render()
@@ -158,7 +160,7 @@ func Run() {
 	ui.WindowStore[0].Render()
 
 	for {
-		w, h := getSize()
+		w, _ := getSize()
 		e := <-ev
 		debug(w, e, "")
 
@@ -212,12 +214,12 @@ func Run() {
 			// scroll right
 			ui.ScrollRight()
 		case 112:
-			// p
-			input := ui.OpenPopup(w, h, func(url string) {
-				RequestInfo.url = url
-			})
-			debug(w, input, "")
-			<-ev // consume unwanted input
+			// // p
+			// input := ui.OpenPopup(w, h, func(url string) {
+			// 	RequestInfo.url = url
+			// })
+			// debug(w, input, "")
+			// <-ev // consume unwanted input
 			// case 99:
 			// 	ui.ClosePopup()
 		}
