@@ -135,6 +135,16 @@ func Run() {
 		}).
 		Render()
 
+	ui.NewWindow(16, 1, 15, width/3).
+		Title("Request").
+		Content([]string{
+			"target:",
+			"method:",
+			"header:",
+			"body:",
+		}).
+		Render()
+
 	main = ui.NewWindow(1, width/3+1, height-4, width-(width/3)).
 		Title("Main").
 		Content([]string{
