@@ -68,6 +68,15 @@ func debug(w int, e interface{}, s interface{}) {
 	ui.Print("\x1b[31mDEBUG: ", e, s, "\x1b[0m")
 }
 
+func parseRequestInfo() []string {
+	return []string{
+		"target: " + RequestInfo.url,
+		"method: " + RequestInfo.method,
+		"header: " + RequestInfo.ParseHeaders(),
+		"body: " + RequestInfo.body,
+	}
+}
+
 func Run() {
 	ui.LoadAlternateScreen()
 	ui.HideCursor()
@@ -91,6 +100,7 @@ func Run() {
 	go handleTermResize(sigs)
 
 	var main *ui.Window
+	var info *ui.Window
 
 	ui.NewWindow(1, 1, 15, width/3).
 		Title("Ops").
@@ -124,26 +134,23 @@ func Run() {
 				ui.OpenPopup("url", width, height, func(url string) {
 					RequestInfo.url = url
 				})
+				info.Content(parseRequestInfo()).Render()
 				<-ev
 			},
 			func() {
 				ui.OpenPopup("method", width, height, func(method string) {
 					RequestInfo.method = method
 				})
+				info.Content(parseRequestInfo()).Render()
 				<-ev
 			},
 		}).
 		Render()
 
-	ui.NewWindow(16, 1, 15, width/3).
+	info = ui.NewWindow(16, 1, 15, width/3).
 		Title("Request").
-		Content([]string{
-			"target:",
-			"method:",
-			"header:",
-			"body:",
-		}).
-		Render()
+		Content(parseRequestInfo())
+	info.Render()
 
 	main = ui.NewWindow(1, width/3+1, height-4, width-(width/3)).
 		Title("Main").
