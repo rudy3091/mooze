@@ -54,7 +54,8 @@ func handleTermResize(sigchan chan os.Signal) {
 		<-sigchan
 		width, height := getSize()
 		ui.WindowStore[0].Resize(15, width/3)
-		ui.WindowStore[1].Resize(height-4, width-(width/3)).Relocate(1, width/3+1)
+		ui.WindowStore[1].Resize(15, width/3)
+		ui.WindowStore[2].Resize(height-4, width-(width/3)).Relocate(1, width/3+1)
 		ui.LensWindow.Resize(3, width).Relocate(height-3, 1)
 		ui.ClearScreen()
 		ui.ReloadAll()
